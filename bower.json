@@ -1,0 +1,24 @@
+{
+  "private": true,
+  "name": "purescript-halogen-template",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output",
+    "dist"
+  ],
+  "dependencies": {
+    "purescript-console": "^3.0.0",
+    "purescript-affjax": "*",
+    "purescript-aff-coroutines": "*",
+    "purescript-argonaut": "*",
+    "purescript-argonaut-codecs": "*",
+    "purescript-argonaut-generic-codecs": "*",
+    "purescript-halogen": "^2.0.0",
+    "purescript-unsafe-coerce": "*"
+  },
+  "devDependencies": {
+    "purescript-psci-support": "^3.0.0"
+  }
+}

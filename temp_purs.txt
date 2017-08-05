@@ -1,0 +1,9 @@
+
+
+bower i purescript-psci-support --save-dev
+pulp repl 
+
+
+ame up with a close approximation to this feature that works now: make sure you have a todo :: forall a. a in scope, and then write: (todo :: _).
+
+One way to get todo :: forall a. a without needing the FFI is to use unsafeCoerce unit.

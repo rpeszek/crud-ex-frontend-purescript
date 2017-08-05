@@ -1,0 +1,9 @@
+/.*
+!/.gitignore
+!/.travis.yml
+/bower_components/
+/node_modules/
+/output/
+/dist/app.js
+test.js
+app.js
