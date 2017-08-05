@@ -1,8 +1,9 @@
 module CrudReuse.Common (
   AjaxM
- , class RestfullyGet
+ , class EntityGET
  , getEntities
- , class ViewableEntity
+ , getEntity
+ , class EntityReadHTML
  , detailedView
  , listView
 ) where
@@ -19,22 +20,26 @@ type AjaxM e a = Aff (ajax :: AJAX | e) (Either String a)
   
 {-
  It would be cleaner if I could define this for arbitrary monad effect:
-class RestfullyGet e a where
+class EntityGET e a where
   getEntities :: e (Array (Entity(KeyT a) a)) 
 
  but I do not know how to do lambda level expressions in purescript (functional dependencies?)
  code like 
-instance restGet :: RestfullyGet (AjaxM e) Thing where ...
+instance restGet :: EntityGET (AjaxM e) Thing where ...
 does not compile
 -}
-class RestfullyGet e a where
+class EntityGET e a where
   getEntities :: AjaxM e (Array (Entity(KeyT a) a)) 
+  getEntity :: KeyT a -> AjaxM e a 
 
---class EditableEntity e a where
---  createEntity :: 
---  updateEntity ::
---  deleteEntity ::
+class (EntityGET e a) <= EntityREST e a where
+  postEntity :: a -> AjaxM e (Entity(KeyT a) a)
+  putEntity :: KeyT a -> a -> AjaxM e a
+  deleteEntity :: KeyT a -> AjaxM e Unit
 
-class ViewableEntity a where 
+class EntityReadHTML a where 
    detailedView :: forall p i. Entity (KeyT a) a -> HH.HTML p i
    listView :: forall p i. Entity (KeyT a) a -> HH.HTML p i
+
+class EntityEditHTML a where 
+   editView :: forall p i. Entity (KeyT a) a -> HH.HTML p i

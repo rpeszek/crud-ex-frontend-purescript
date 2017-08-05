@@ -7,7 +7,7 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Network.HTTP.Affjax as AX
 import Control.Monad.Aff (Aff)
-import CrudReuse.Common (class RestfullyGet, class ViewableEntity, getEntities, listView)
+import CrudReuse.Common (class EntityGET, class EntityReadHTML, getEntities, listView)
 import CrudReuse.Model (Entity, KeyT)
 import Data.Either (Either(..), either)
 import Data.Maybe (Maybe(..))
@@ -28,7 +28,7 @@ initialState = { loading: false, errOrEntities: Left "Not Retrieved" }
   H.component does not receive initial call from runUI, this will be called from parent eventually
   https://github.com/slamdata/purescript-halogen/issues/444
 -}
-ui :: forall eff model. ViewableEntity model => RestfullyGet eff model => State model -> H.Component HH.HTML Query Unit Void (Aff (ajax :: AX.AJAX | eff))
+ui :: forall eff model. EntityReadHTML model => EntityGET eff model => State model -> H.Component HH.HTML Query Unit Void (Aff (ajax :: AX.AJAX | eff))
 ui initState =
   H.component
     { initialState: const initState

@@ -1,16 +1,16 @@
 module CrudEx.Model where
 
 import Prelude
-import CrudReuse.Model (Entity(..), KeyT)
 import CrudReuse.Server as Serv
 import Data.Argonaut.Generic.Aeson as GAeson
 import Halogen.HTML as HH
---import CrudReuse.Common (AjaxM)
-import CrudReuse.Common (class ViewableEntity, detailedView, listView, class RestfullyGet, getEntities)
+import CrudReuse.Common (class EntityReadHTML, detailedView, listView, class EntityGET, getEntities, getEntity)
+import CrudReuse.Model (Entity(..), KeyT)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Generic (class Generic, gShow)
 import Data.Maybe (Maybe)
+import Network.HTTP.Affjax.Response (ResponseType(..))
 import Prim (Int, String)
 
 
@@ -28,14 +28,18 @@ instance encodeJsonThing :: EncodeJson Thing where
   encodeJson = GAeson.encodeJson
 instance showThing :: Show Thing where
   show = gShow
-instance htmlThing :: ViewableEntity Thing where
+instance htmlReadThing :: EntityReadHTML Thing where
    detailedView thingEntity = HH.div_ []
    listView (Entity obj) = 
       let Thing thing = obj.entity :: Thing
       in HH.div_ [ HH.text (thing.name) ]
-instance restGet :: RestfullyGet e Thing where
-   getEntities = Serv.getElements "things"
-     
+
+thingsURI :: Serv.EntityURI
+thingsURI = "things"
+
+instance serverGet :: EntityGET e Thing where
+   getEntities = Serv.getElements thingsURI
+   getEntity = Serv.getElement thingsURI
 
 type ThingEntity = Entity (KeyT Thing) Thing
 
