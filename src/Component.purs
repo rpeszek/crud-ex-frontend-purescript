@@ -66,7 +66,7 @@ ui =
       ]
 
   getThings :: forall e. AjaxM e (Array ThingEntity)
-  getThings = Serv.getElements "things"
+  getThings = Serv.getList "things"
 
   eval :: Query ~> H.ComponentDSL State Query Void (Aff (ajax :: AX.AJAX | eff))
   eval = case _ of

@@ -2,7 +2,7 @@ module CrudEx.Model where
 
 import Prelude
 import CrudReuse.Server as Serv
-import Data.Argonaut.Generic.Aeson as GAeson
+import Data.Argonaut.Generic.Aeson as Generic
 import Halogen.HTML as HH
 import CrudReuse.Common (class EntityReadHTML, detailedView, listView, class EntityGET, getEntities, getEntity)
 import CrudReuse.Model (Entity(..), KeyT)
@@ -23,9 +23,9 @@ data Thing =
 
 derive instance genericThing :: Generic Thing
 instance decodeJsonThing :: DecodeJson Thing where
-  decodeJson = GAeson.decodeJson
+  decodeJson = Generic.decodeJson
 instance encodeJsonThing :: EncodeJson Thing where
-  encodeJson = GAeson.encodeJson
+  encodeJson = Generic.encodeJson
 instance showThing :: Show Thing where
   show = gShow
 instance htmlReadThing :: EntityReadHTML Thing where
@@ -33,15 +33,14 @@ instance htmlReadThing :: EntityReadHTML Thing where
    listView (Entity obj) = 
       let Thing thing = obj.entity :: Thing
       in HH.div_ [ HH.text (thing.name) ]
+instance serverGet :: EntityGET e Thing where
+   getEntities = Serv.getList thingsURI
+   getEntity = Serv.getSingle thingsURI
+
+type ThingEntity = Entity (KeyT Thing) Thing
 
 thingsURI :: Serv.EntityURI
 thingsURI = "things"
-
-instance serverGet :: EntityGET e Thing where
-   getEntities = Serv.getElements thingsURI
-   getEntity = Serv.getElement thingsURI
-
-type ThingEntity = Entity (KeyT Thing) Thing
 
 {-
 test :: String
