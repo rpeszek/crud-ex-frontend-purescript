@@ -6,7 +6,7 @@ module Component (State, Query(..), ui) where
 import Prelude
 import CrudEx.Model
 import CrudReuse.Server as Serv
-import CrudReuse.Common (AjaxM)
+import CrudReuse.Common (AjaxErrM)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
@@ -65,7 +65,7 @@ ui =
               ]
       ]
 
-  getThings :: forall e. AjaxM e (Array ThingEntity)
+  getThings :: forall e. AjaxErrM e (Array ThingEntity)
   getThings = Serv.getList "things"
 
   eval :: Query ~> H.ComponentDSL State Query Void (Aff (ajax :: AX.AJAX | eff))

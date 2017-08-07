@@ -6,14 +6,16 @@ import Halogen.Aff as HA
 import Halogen.VDom.Driver (runUI)
 import Network.HTTP.Affjax as AX
 --import Component (ui)
-import CrudReuse.Components.List.Component as List
-import CrudEx.Model (Thing)
+import CrudEx.Router as R
+import Control.Monad.Aff (forkAff)
 
-initState :: List.State Thing
-initState = List.initialState 
+--import CrudReuse.Components.List.Component as List
+--import CrudEx.Model (Thing)
+
 
 -- | Run the app.
 main :: Eff (HA.HalogenEffects (ajax :: AX.AJAX)) Unit
 main = HA.runHalogenAff do
   body <- HA.awaitBody
-  runUI (List.ui initState) unit body
+  driver <- runUI R.ui unit body
+  forkAff $ R.dispatch driver

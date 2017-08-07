@@ -1,13 +1,11 @@
-module CrudReuse.Components.List.Component (State, Query(..), ui, initialState) where
+module CrudReuse.Components.List.Component (State, Query(..), ui, initialState, Slot(..)) where
 
 import Prelude
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Network.HTTP.Affjax as AX
-import Control.Monad.Aff (Aff)
-import CrudReuse.Common (class EntityGET, class EntityReadHTML, getEntities, listView)
+import CrudReuse.Common (class EntityGET, class EntityReadHTML, getEntities, listView, AjaxM)
 import CrudReuse.Model (Entity, KeyT)
 import Data.Either (Either(..), either)
 import Data.Maybe (Maybe(..))
@@ -17,9 +15,12 @@ type State model =
   , errOrEntities :: Either String (Array (Entity (KeyT model) model))
   }
 
-
 data Query a
   = GetList a
+
+data Slot = Slot
+derive instance eqListSlot :: Eq Slot
+derive instance ordListSlot :: Ord Slot
   
 initialState :: forall model . State model
 initialState = { loading: false, errOrEntities: Left "Not Retrieved" }
@@ -28,13 +29,13 @@ initialState = { loading: false, errOrEntities: Left "Not Retrieved" }
   H.component does not receive initial call from runUI, this will be called from parent eventually
   https://github.com/slamdata/purescript-halogen/issues/444
 -}
-ui :: forall eff model. EntityReadHTML model => EntityGET eff model => State model -> H.Component HH.HTML Query Unit Void (Aff (ajax :: AX.AJAX | eff))
+ui :: forall eff model. EntityReadHTML model => EntityGET eff model => State model -> H.Component HH.HTML Query Unit Void (AjaxM eff)
 ui initState =
   H.component
     { initialState: const initState
     , render
     , eval
-    , receiver: const Nothing -- const $ Just $ GetList unit
+    , receiver: const $ Just $ GetList unit
     }
   where
 
@@ -61,7 +62,7 @@ ui initState =
             [ HH.text (if st.loading then "Working..." else either id (const "") st.errOrEntities) ]
       ]
 
-  eval :: Query ~> H.ComponentDSL (State model) Query Void (Aff (ajax :: AX.AJAX | eff))
+  eval :: Query ~> H.ComponentDSL (State model) Query Void (AjaxM eff)
   eval = case _ of
     GetList next -> do
       H.modify (_ { loading = true })

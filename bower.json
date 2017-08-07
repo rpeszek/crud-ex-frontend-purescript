@@ -10,13 +10,14 @@
   ],
   "dependencies": {
     "purescript-console": "^3.0.0",
-    "purescript-affjax": "*",
-    "purescript-aff-coroutines": "*",
-    "purescript-argonaut": "*",
-    "purescript-argonaut-codecs": "*",
-    "purescript-argonaut-generic-codecs": "*",
-    "purescript-halogen": "^2.0.0",
-    "purescript-unsafe-coerce": "*"
+    "purescript-affjax": "^4.0.0",
+    "purescript-aff-coroutines": "^5.0.0",
+    "purescript-argonaut": "^3.0.0",
+    "purescript-argonaut-codecs": "^3.2.0",
+    "purescript-argonaut-generic-codecs": "^6.0.4",
+    "purescript-halogen": "^2.1.0",
+    "purescript-unsafe-coerce": "^3.0.0",
+    "purescript-routing": "^5.1.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0"

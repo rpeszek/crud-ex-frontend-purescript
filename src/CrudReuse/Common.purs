@@ -1,5 +1,6 @@
 module CrudReuse.Common (
-  AjaxM
+  AjaxErrM
+ , AjaxM
  , class EntityGET
  , getEntities
  , getEntity
@@ -16,7 +17,8 @@ import Control.Monad.Aff (Aff)
 import Data.Either (Either)
 import Network.HTTP.Affjax (AJAX)
 
-type AjaxM e a = Aff (ajax :: AJAX | e) (Either String a)
+type AjaxM eff = (Aff (ajax :: AJAX | eff))
+type AjaxErrM e a = Aff (ajax :: AJAX | e) (Either String a)
   
 {-
  It would be cleaner if I could define this for arbitrary monad effect:
@@ -25,17 +27,17 @@ class EntityGET e a where
 
  but I do not know how to do lambda level expressions in purescript (functional dependencies?)
  code like 
-instance restGet :: EntityGET (AjaxM e) Thing where ...
+instance restGet :: EntityGET (AjaxErrM e) Thing where ...
 does not compile
 -}
 class EntityGET e a where
-  getEntities :: AjaxM e (Array (Entity(KeyT a) a)) 
-  getEntity :: KeyT a -> AjaxM e a 
+  getEntities :: AjaxErrM e (Array (Entity(KeyT a) a)) 
+  getEntity :: KeyT a -> AjaxErrM e a 
 
 class (EntityGET e a) <= EntityREST e a where
-  postEntity :: a -> AjaxM e (Entity(KeyT a) a)
-  putEntity :: KeyT a -> a -> AjaxM e a
-  deleteEntity :: KeyT a -> AjaxM e Unit
+  postEntity :: a -> AjaxErrM e (Entity(KeyT a) a)
+  putEntity :: KeyT a -> a -> AjaxErrM e a
+  deleteEntity :: KeyT a -> AjaxErrM e Unit
 
 class EntityReadHTML a where 
    detailedView :: forall p i. Entity (KeyT a) a -> HH.HTML p i
