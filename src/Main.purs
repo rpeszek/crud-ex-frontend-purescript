@@ -6,7 +6,7 @@ import Halogen.Aff as HA
 import Halogen.VDom.Driver (runUI)
 import Network.HTTP.Affjax as AX
 --import Component (ui)
-import CrudEx.Router as R
+import CrudEx.Components.Router.Component as R
 import Control.Monad.Aff (forkAff)
 
 --import CrudReuse.Components.List.Component as List

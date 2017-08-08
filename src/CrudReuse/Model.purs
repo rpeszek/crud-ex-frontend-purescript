@@ -28,6 +28,9 @@ instance encodeJsonKeyT :: EncodeJson (KeyT a) where
 instance showKeyT :: Show a => Show (KeyT a) where 
   show (KeyT i) =  "KeyT(" <> show i <> ")" 
 
+unKey :: forall a . KeyT a -> Int 
+unKey (KeyT i) = i
+
 data Entity a b =
     Entity {
       id :: a

@@ -1,85 +1,52 @@
-{-Temporary work on common parent component-}
-module CrudEx.Router where
+{-
+  Temporary work on common parent component
+  Ideally most of this logic should move to CrudReuse
+-}
+module CrudEx.Components.Router.Component where
 
 import Prelude
 import Data.Maybe
 import Data.Tuple
 import CrudEx.Model
-import CrudReuse.Common (AjaxM)
 import CrudReuse.Components.List.Component as ListC
 import CrudReuse.Components.Message.Component as MsgC
+import CrudReuse.Components.View.Component as ViewC
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
-import Halogen.HTML.Properties as HP
-import Control.Alt ((<|>))
-import Control.Category (id)
 import Control.Monad.Aff (Aff)
 import Control.Monad.State.Class (modify)
+import CrudEx.Routing (Routes(..), routing)
+import CrudReuse.Common (AjaxM, Proxy(..))
 import CrudReuse.Model (KeyT(..))
-import Data.Either (Either)
-import Data.Functor.Coproduct (Coproduct)
-import Data.Generic (class Generic, gShow)
-import Data.Int (floor)
-import Data.String (toLower)
-import Halogen.Component.ChildPath (ChildPath, cpR, cpL)
+import Data.Const (Const(..))
+import Data.Functor.Coproduct (Coproduct(..))
+import Halogen.Component.ChildPath (ChildPath, cp1, cp2, cp3, cpR)
+import Halogen.Data.Prism (type (\/), type (<\/>))
 import Routing (matchesAff)
-import Routing.Match (Match)
-import Routing.Match.Class (lit, num, int, str)
-import Network.HTTP.Affjax as AX
-import Control.Monad.Aff (Aff)
-
 -- TODO needs common effect type (Aff (ajax :: AX.AJAX | eff))
 
 data Query a
   = Dispatch Routes a
 
-data Routes
-  = ThingList
-   | ThingView (KeyT Thing)
-   | ThingEdit (KeyT Thing)
-   | NotDone String
-
-instance showRoutes :: Show Routes where
-  show ThingList = "List Things"
-  show (ThingView (KeyT id)) = "View Thing" <> show id
-  show (ThingEdit (KeyT id)) = "Edit Thing" <> show id
-  show (NotDone _) = "Message"
-
 init :: State
 init = { currentRoute: ThingList }
-
-routing :: Match Routes
-routing = thingList
-      <|> thingView
-      <|> thingEdit
-      <|> notDone
-  where
-    thingList = ThingList <$ oneSlash
-    thingView = ThingView <$> (homeSlash *> lit "thingView" *> thingKey)
-    thingEdit = ThingEdit <$> (homeSlash *> lit "thingEdit" *> thingKey)
-    notDone = NotDone <$> (homeSlash *> lit "notDone" *> str)
-    oneSlash :: Match Unit
-    oneSlash = lit "/"
-    homeSlash :: Match Unit
-    homeSlash = lit ""
-    --int :: Match Int
-    --int = floor <$> num
-    thingKey :: Match (KeyT Thing)
-    thingKey = KeyT <$> int
 
 type State =
   { currentRoute :: Routes
   }
 
-type ChildQuery = Coproduct ListC.Query MsgC.Query
-type ChildSlot = Either ListC.Slot MsgC.Slot
+type ChildQuery = ListC.Query <\/> ViewC.Query <\/> MsgC.Query <\/> Const Void
+type ChildSlot = ListC.Slot \/ ViewC.Slot \/ MsgC.Slot \/ Void
 
 pathToList :: ChildPath ListC.Query ChildQuery ListC.Slot ChildSlot
-pathToList = cpL
+pathToList = cp1
+
+pathToView :: ChildPath ViewC.Query ChildQuery ViewC.Slot ChildSlot
+pathToView = cp2
 
 pathToMessage :: ChildPath MsgC.Query ChildQuery MsgC.Slot ChildSlot
-pathToMessage = cpR
+pathToMessage = cp3
 
 type QueryP
   = Coproduct Query ChildQuery
@@ -98,13 +65,12 @@ ui = H.parentComponent
         [ HH.h1_ [ HH.text (show st.currentRoute) ] 
         , viewPage st.currentRoute
         ]
-
+         
     viewPage :: Routes -> H.ParentHTML Query ChildQuery ChildSlot (AjaxM eff)
     viewPage ThingList =
-      HH.slot' pathToList ListC.Slot (ListC.ui initListState) unit absurd
-        where 
-         initListState :: ListC.State Thing
-         initListState = ListC.initialState 
+      HH.slot' pathToList ListC.Slot (ListC.ui proxy) ListC.GetList absurd
+    viewPage (ThingView (KeyT i)) = 
+      HH.slot' pathToView ViewC.Slot (ViewC.ui proxy) i absurd       
     viewPage (NotDone msg) =
       HH.slot' pathToMessage MsgC.Slot MsgC.ui msg absurd
     -- TODO needs to pass message
@@ -115,6 +81,9 @@ ui = H.parentComponent
     eval (Dispatch routeEl next) = do
       modify (_ { currentRoute = routeEl })
       pure next
+    
+    proxy :: Proxy Thing
+    proxy = Proxy 
 
 dispatch :: forall eff. H.HalogenIO Query Void (Aff (HA.HalogenEffects eff))
             -> Aff (HA.HalogenEffects eff) Unit
