@@ -3,10 +3,11 @@ module CrudEx.Model where
 import Prelude
 import CrudReuse.Server as Serv
 import Data.Argonaut.Generic.Aeson as Generic
---import CrudEx.Routing as R
 import Halogen.HTML as HH
-import CrudReuse.Common (class EntityReadHTML, readView, listView, class EntityGET, getEntities, getEntity)
+import Halogen.HTML.Properties as HP
+import CrudReuse.Common (class EntityGET, class EntityReadHTML, class EntityRoute, baseUri, displayRoute, getEntities, getEntity, listView, readView)
 import CrudReuse.Model (Entity(..), KeyT(..))
+import CrudReuse.Routing (CrudRoutes(..), uri)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Generic (class Generic, gShow)
@@ -29,6 +30,7 @@ instance encodeJsonThing :: EncodeJson Thing where
   encodeJson = Generic.encodeJson
 instance showThing :: Show Thing where
   show = gShow
+
 instance htmlReadThing :: EntityReadHTML Thing where
    readView (Entity obj) =
       let Thing thing = obj.entity :: Thing
@@ -36,12 +38,13 @@ instance htmlReadThing :: EntityReadHTML Thing where
           HH.div_ [ HH.text "name", HH.text thing.name ] 
         , HH.div_ [ HH.text "description", HH.text thing.description ]
       ]
- -- HH.a [ HP.href ("#/" <> R.uri ThingList) ] [ HH.text "Cancel"]
    listView (Entity obj) = 
       let Thing thing = obj.entity :: Thing
-      in HH.div_ [ HH.text (thing.name) ]
-   readUri (KeyT id) = "#/things/view/" <> show id --R.uri $ ThingView key
-   listUri _ = "#/things/list"                            --R.uri ThingList
+      in HH.div_ [ HH.a [ HP.href $ uri (View obj.id)] [HH.text (thing.name)] ]
+
+instance thingRoute :: EntityRoute Thing where
+   baseUri _ = "things"
+   displayRoute _ = "Thing"
 
 instance serverGet :: EntityGET e Thing where
    getEntities = Serv.getList thingsURI

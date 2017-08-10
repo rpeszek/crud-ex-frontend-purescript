@@ -5,12 +5,13 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import CrudReuse.Common (class EntityGET, class EntityReadHTML, AjaxM, Proxy(..), readView, getEntities, getEntity, listView, listUri)
+import CrudReuse.Common (class EntityGET, class EntityReadHTML, class EntityRoute, AjaxM, Proxy(..), getEntities, getEntity, listView, readView)
 import CrudReuse.Model (Entity(..), KeyT(..), unKey, toEntity)
+import CrudReuse.Routing (CrudRoutes(..), uri)
 import Data.Either (Either(..), either)
 import Data.Maybe (Maybe(..))
 
-type Input = Int
+type Input model = KeyT model
 
 type State model =
   { loading :: Boolean
@@ -18,21 +19,21 @@ type State model =
   , errOrModel :: Either String model
   }
 
-data Query a
-  = GetSingle Int a
+data Query model a
+  = GetSingle (KeyT model) a
 
 data Slot = Slot
 derive instance eqListSlot :: Eq Slot
 derive instance ordListSlot :: Ord Slot
   
-initialState :: forall model . Int -> State model
-initialState i = { loading: false, key: KeyT i, errOrModel: Left "Not Retrieved" }
+initialState :: forall model . KeyT model -> State model
+initialState i = { loading: false, key: i, errOrModel: Left "Not Retrieved" }
 
 {-
   H.component does not receive initial call from runUI, this will be called from parent eventually
   https://github.com/slamdata/purescript-halogen/issues/444
 -}
-ui :: forall eff model. EntityReadHTML model => EntityGET eff model => Proxy model -> H.Component HH.HTML Query Input Void (AjaxM eff)
+ui :: forall eff model. EntityReadHTML model => EntityGET eff model => EntityRoute model => Proxy model -> H.Component HH.HTML (Query model) (Input model) Void (AjaxM eff)
 ui proxy =
   H.component
     { initialState: initState
@@ -41,10 +42,10 @@ ui proxy =
     , receiver: HE.input GetSingle
     }
   where
-  initState :: Int -> State model
+  initState :: KeyT model -> State model
   initState = initialState
 
-  render :: State model -> H.ComponentHTML Query
+  render :: State model -> H.ComponentHTML (Query model)
   render st =
     HH.form_ $
       [ 
@@ -53,7 +54,7 @@ ui proxy =
             Left err -> [
               HH.button
                   [ HP.disabled st.loading
-                  , HE.onClick (HE.input_ $ GetSingle $ unKey st.key)
+                  , HE.onClick (HE.input_ $ GetSingle st.key)
                   ]
                   [ HH.text "Test Fetch" ]
             ]
@@ -68,15 +69,15 @@ ui proxy =
                       , HH.div_ [
                            HH.button [ 
                               HP.disabled st.loading
-                            , HE.onClick (HE.input_ $ GetSingle $ unKey st.key)
+                            , HE.onClick (HE.input_ $ GetSingle st.key)
                            ]
                            [ HH.text "Refresh" ]
                           , HH.button [ 
                              HP.disabled st.loading
-                            , HE.onClick (HE.input_ $ GetSingle $ unKey st.key)
+                            , HE.onClick (HE.input_ $ GetSingle st.key)
                            ]
                            [ HH.text "Delete" ]
-                           , HH.a [ HP.href $ listUri proxy ] [ HH.text "Cancel"]
+                           , HH.a [ HP.href $ uri (List::CrudRoutes model)] [ HH.text "Cancel"]
                         ]
                      ] 
                  ]
@@ -84,11 +85,10 @@ ui proxy =
             [ HH.text (if st.loading then "Working..." else either id (const "") st.errOrModel) ]
       ]
 
-  eval :: Query ~> H.ComponentDSL (State model) Query Void (AjaxM eff)
+  eval :: Query model ~> H.ComponentDSL (State model) (Query model) Void (AjaxM eff)
   eval = case _ of
-    GetSingle i next -> do
-      H.modify (_ { loading = true, key = KeyT i })
-      oldS <- H.get
-      errOrModel <- H.liftAff $ getEntity oldS.key
+    GetSingle key next -> do
+      H.modify (_ { loading = true, key = key })
+      errOrModel <- H.liftAff $ getEntity key
       H.modify (_ { loading = false, errOrModel = errOrModel })
       pure next

@@ -7,9 +7,10 @@ module CrudReuse.Common (
  , class EntityReadHTML
  , readView
  , listView
- , readUri
- , listUri
  , Proxy(..)
+ , class EntityRoute
+ , baseUri
+ , displayRoute
 ) where
 
 import Prelude
@@ -42,13 +43,15 @@ class (EntityGET e a) <= EntityREST e a where
   putEntity :: KeyT a -> a -> AjaxErrM e a
   deleteEntity :: KeyT a -> AjaxErrM e Unit
 
+class EntityRoute a where
+   baseUri :: Proxy a -> String
+   displayRoute :: Proxy a -> String
+
 class EntityReadHTML a where 
    readView :: forall p i. Entity (KeyT a) a -> HH.HTML p i
    listView :: forall p i. Entity (KeyT a) a -> HH.HTML p i
-   readUri  :: (KeyT a) -> String
-   listUri  :: Proxy a -> String
 
-class EntityEditHTML a where 
+class EntityReadHTML a <= EntityEditHTML a where 
    editView :: forall p i. Entity (KeyT a) a -> HH.HTML p i
 
 data Proxy a = Proxy
