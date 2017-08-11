@@ -76,8 +76,11 @@ ui = H.parentComponent
     eval :: Query ~> H.ParentDSL State Query ChildQuery ChildSlot Void (AjaxM eff)
     eval (Get routeEl next) = debug "app eval" do
         modify (_ { currentAppR = routeEl })
+        _ <- case routeEl of 
+                ThingR r -> H.query' pathToThing CrudC.Slot (CrudC.Dispatch r unit)
+                OtherR r -> H.query' pathToOther CrudC.Slot (CrudC.Dispatch r unit)
+                MsgR r   -> H.query' pathToMessage MsgC.Slot (MsgC.HandleInput r unit)
         pure next
-
 
 dispatch ::  forall eff. H.HalogenIO Query Void (Aff (HA.HalogenEffects eff))
             -> Aff (HA.HalogenEffects eff) Unit
