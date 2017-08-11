@@ -11,6 +11,7 @@ module CrudReuse.Common (
  , class EntityRoute
  , baseUri
  , displayRoute
+ , EntityURI
 ) where
 
 import Prelude
@@ -55,3 +56,5 @@ class EntityReadHTML a <= EntityEditHTML a where
    editView :: forall p i. Entity (KeyT a) a -> HH.HTML p i
 
 data Proxy a = Proxy
+
+type EntityURI = String

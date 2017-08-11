@@ -7,7 +7,7 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import CrudReuse.Common (class EntityGET, class EntityReadHTML, class EntityRoute, AjaxM, Proxy(..), getEntities, getEntity, listView, readView)
 import CrudReuse.Model (Entity(..), KeyT(..), unKey, toEntity)
-import CrudReuse.Routing (CrudRoutes(..), uri)
+import CrudReuse.Routing (CrudRoutes(..), crudUri)
 import Data.Either (Either(..), either)
 import Data.Maybe (Maybe(..))
 
@@ -77,7 +77,7 @@ ui proxy =
                             , HE.onClick (HE.input_ $ GetSingle st.key)
                            ]
                            [ HH.text "Delete" ]
-                           , HH.a [ HP.href $ uri (List::CrudRoutes model)] [ HH.text "Cancel"]
+                           , HH.a [ HP.href $ crudUri (List::CrudRoutes model)] [ HH.text "Cancel"]
                         ]
                      ] 
                  ]

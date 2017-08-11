@@ -1,12 +1,12 @@
 module CrudReuse.Routing where
 
 import Prelude
+import CrudReuse.Common
 import Control.Alt ((<|>))
 import CrudReuse.Model (KeyT(..))
 import Network.HTTP.Affjax.Response (ResponseType(..))
 import Routing.Match (Match)
 import Routing.Match.Class (lit, int, str)
-import CrudReuse.Common
 
 data CrudRoutes a
     = List 
@@ -21,27 +21,34 @@ instance showCrudRoutes :: EntityRoute a => Show (CrudRoutes a) where
   show (Edit (KeyT id)) = "Edit " <> displayRoute (Proxy :: Proxy a) <> " " <> show id
   show (NotDone str) = "NotDone " <> displayRoute (Proxy :: Proxy a) <> " " <> str
 
-uri :: forall a. EntityRoute a => CrudRoutes a -> String
-uri List  = "#/" <> baseUri (Proxy :: Proxy a) <> "/list"
-uri (View (KeyT id)) = "#/" <> baseUri (Proxy :: Proxy a) <> "/view/" <> show id
-uri (Edit (KeyT id)) = "#/" <> baseUri (Proxy :: Proxy a) <> "/edit/" <> show id
-uri (NotDone str) = "#/" <> baseUri (Proxy :: Proxy a) <> "/notDone/"  <> str
+crudUri :: forall a. EntityRoute a => CrudRoutes a -> String
+crudUri List  = "#/" <> baseUri (Proxy :: Proxy a) <> "/list"
+crudUri (View (KeyT id)) = "#/" <> baseUri (Proxy :: Proxy a) <> "/view/" <> show id
+crudUri (Edit (KeyT id)) = "#/" <> baseUri (Proxy :: Proxy a) <> "/edit/" <> show id
+crudUri (NotDone str) = "#/" <> baseUri (Proxy :: Proxy a) <> "/notDone/"  <> str
 
 
-routing :: forall a. EntityRoute a => Match (CrudRoutes a)
-routing = list
+crudRoute :: forall a. EntityRoute a => Match (CrudRoutes a)
+crudRoute = list
       <|> view
       <|> edit
       <|> notDone
   where
-    list = List <$ (homeSlash *> lit buri *> lit "list")
-    view = View <$> (homeSlash *> lit buri *> lit "view" *> aKey)
-    edit = Edit <$> (homeSlash *> lit buri *> lit "edit" *> aKey)
-    notDone = NotDone <$> (homeSlash *> lit buri *> lit "notDone" *> str)
-    buri = baseUri (Proxy :: Proxy a)
-    homeSlash :: Match Unit
-    homeSlash = lit ""
+    list = List <$ (homeSlash *> lit bcrudUri *> lit "list")
+    view = View <$> (homeSlash *> lit bcrudUri *> lit "view" *> aKey)
+    edit = Edit <$> (homeSlash *> lit bcrudUri *> lit "edit" *> aKey)
+    notDone = NotDone <$> (homeSlash *> lit bcrudUri *> lit "notDone" *> str)
+    bcrudUri = baseUri (Proxy :: Proxy a)
     --int :: Match Int
     --int = floor <$> num
     aKey :: Match (KeyT a)
     aKey = KeyT <$> int
+
+msgUri :: String -> String 
+msgUri s = "#/msg/" <> s
+
+msgRoute :: Match String 
+msgRoute = homeSlash *> lit "msg" *> str
+
+homeSlash :: Match Unit
+homeSlash = lit ""

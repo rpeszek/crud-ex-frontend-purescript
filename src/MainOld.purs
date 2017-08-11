@@ -5,7 +5,7 @@ import CrudReuse.Components.List.Component as List
 import Halogen.Aff as HA
 import Network.HTTP.Affjax as AX
 import Control.Monad.Eff (Eff)
-import CrudEx.Model (Thing)
+import CrudEx.Model.Thing (Thing)
 import CrudReuse.Common (Proxy(..))
 import Halogen.VDom.Driver (runUI)
 

@@ -4,7 +4,7 @@ module Component (State, Query(..), ui) where
   Temporary testing, TODO remove this
 -}
 import Prelude
-import CrudEx.Model
+import CrudEx.Model.Thing
 import CrudReuse.Server as Serv
 import CrudReuse.Common (AjaxErrM)
 import Halogen as H

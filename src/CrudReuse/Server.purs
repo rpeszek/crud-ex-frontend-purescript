@@ -3,7 +3,7 @@ module CrudReuse.Server where
 import Prelude
 import Control.Monad.Aff (attempt)
 import Control.Monad.Error.Class (throwError)
-import CrudReuse.Common (AjaxErrM)
+import CrudReuse.Common (AjaxErrM, EntityURI)
 import CrudReuse.Model (KeyT(..), Entity(..))
 import Data.Argonaut (class DecodeJson, class EncodeJson, Json, decodeJson, encodeJson)
 import Data.Either (Either(..), either)
@@ -17,8 +17,6 @@ import Network.HTTP.Affjax (defaultRequest, affjax, AffjaxResponse)
  TODO error handling may need some thinking?
 -}
  
-type EntityURI = String
-
 -- TODO this should be configurable
 baseURL :: String
 baseURL = "http://localhost:3000/"

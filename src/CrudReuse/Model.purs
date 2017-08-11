@@ -20,7 +20,7 @@ import Prim (Int, String)
   
 data KeyT a = KeyT Int
     
-
+derive instance eqKeyT ::  Eq (KeyT a)
 instance decodeJsonKeyT :: DecodeJson (KeyT a) where
   decodeJson j = KeyT <$> decodeJson j
 instance encodeJsonKeyT :: EncodeJson (KeyT a) where

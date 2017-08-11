@@ -7,24 +7,34 @@ module CrudReuse.Components.Crud.Component where
 import Prelude
 import Data.Maybe
 import Data.Tuple
-import CrudEx.Model
+import CrudEx.Model.Thing
 import CrudReuse.Components.List.Component as ListC
 import CrudReuse.Components.Message.Component as MsgC
 import CrudReuse.Components.View.Component as ViewC
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
+import Halogen.HTML.Events as HE
 import Control.Monad.Aff (Aff)
 import Control.Monad.State.Class (modify)
 import CrudReuse.Common (class EntityGET, class EntityReadHTML, class EntityRoute, AjaxM, Proxy(..))
 import CrudReuse.Model (KeyT(..))
-import CrudReuse.Routing (CrudRoutes(..), routing)
+import CrudReuse.Routing (CrudRoutes(..), crudRoute)
 import Data.Const (Const(..))
 import Data.Functor.Coproduct (Coproduct(..))
 import Halogen.Component.ChildPath (ChildPath, cp1, cp2, cp3, cpR)
 import Halogen.Data.Prism (type (\/), type (<\/>))
 import Routing (matchesAff)
 -- TODO needs common effect type (Aff (ajax :: AX.AJAX | eff))
+
+data Input model = Input (CrudRoutes model)
+
+extractInput :: forall model . Input model -> CrudRoutes model
+extractInput (Input route) = route
+
+data Slot model = Slot
+derive instance eqListSlot ::  Eq (Slot a)
+derive instance ordListSlot ::  Ord (Slot a)
 
 data Query model a
   = Dispatch (CrudRoutes model) a
@@ -48,15 +58,15 @@ pathToView = cp2
 pathToMessage :: forall model. ChildPath MsgC.Query (ChildQuery model) MsgC.Slot ChildSlot
 pathToMessage = cp3
 
-type QueryP model
-  = Coproduct (Query model) (ChildQuery model)
+--type QueryP model
+--  = Coproduct (Query model) (ChildQuery model)
 
-ui :: forall eff model. EntityReadHTML model => EntityGET eff model => EntityRoute model => Proxy model -> H.Component HH.HTML (Query model) Unit Void (AjaxM eff)
+ui :: forall eff model. EntityReadHTML model => EntityGET eff model => EntityRoute model => Proxy model -> H.Component HH.HTML (Query model) (Input model) Void (AjaxM eff)
 ui proxy = H.parentComponent
   { initialState: const init
   , render
   , eval
-  , receiver: const Nothing
+  , receiver: HE.input (Dispatch <<< extractInput)
   }
   where
     render :: State model -> H.ParentHTML (Query model) (ChildQuery model) ChildSlot (AjaxM eff)
@@ -86,7 +96,7 @@ ui proxy = H.parentComponent
 dispatch :: forall eff model. EntityRoute model => H.HalogenIO (Query model) Void (Aff (HA.HalogenEffects eff))
             -> Aff (HA.HalogenEffects eff) Unit
 dispatch driver = do
-  Tuple old new <- matchesAff routing
+  Tuple old new <- matchesAff crudRoute
   dispatchNewRoute driver old new
 
 dispatchNewRoute :: forall eff model. H.HalogenIO (Query model) Void (Aff (HA.HalogenEffects eff))
