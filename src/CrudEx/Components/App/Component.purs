@@ -1,29 +1,24 @@
 module CrudEx.Components.App.Component where
   
 import Prelude
-import Data.Maybe
-import Data.Tuple
-import CrudEx.Routing
+import Data.Maybe (Maybe(..))
+import Data.Tuple (Tuple(..))
 import CrudReuse.Components.Crud.Component as CrudC
 import CrudReuse.Components.Message.Component as MsgC
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
-import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Control.Alt (alt)
 import Control.Monad.Aff (Aff)
-import Control.Monad.List.Trans (ListT(..))
 import Control.Monad.State.Class (modify)
 import CrudEx.Model.Other (Other)
-import CrudEx.Model.Other (Other(..))
 import CrudEx.Model.Thing (Thing)
-import CrudReuse.Common (class EntityGET, class EntityReadHTML, class EntityRoute, AjaxM, Proxy(..), displayRoute)
-import CrudReuse.Model (KeyT(..))
-import CrudReuse.Routing (CrudRoutes(..), crudRoute)
-import Data.Const (Const(..))
-import Data.Functor.Coproduct (Coproduct(..))
-import Halogen.Component.ChildPath (ChildPath, cp1, cp2, cp3, cpR)
+import CrudEx.Routing (AppRoute(..), appRoute, appUri)
+import CrudReuse.Common (AjaxM, Proxy(Proxy))
+import CrudReuse.Debug (debug)
+import CrudReuse.Routing (CrudRoute(ListR))
+import Data.Const (Const)
+import Halogen.Component.ChildPath (ChildPath, cp1, cp2, cp3)
 import Halogen.Data.Prism (type (\/), type (<\/>))
 import Routing (matchesAff)
 
@@ -56,16 +51,17 @@ ui = H.parentComponent
     render :: State -> H.ParentHTML Query ChildQuery ChildSlot (AjaxM eff)
     render st =
       HH.div_
-        [ HH.h1_ [ HH.text (show st.currentAppR) ]
+        [ HH.h4_ [ HH.text ("Menu") ]
         , HH.ul_ (map link [
-            ThingR List
-            , OtherR List
+            ThingR ListR
+            , OtherR ListR
             , MsgR "Hello World"
          ])
         , viewPage st.currentAppR
         ]
 
-    link r = HH.li_ [ HH.a [ HP.href $ uri r ] [ HH.text $ uri r ] ]
+    link :: forall p i. AppRoute -> HH.HTML p i
+    link r = HH.li_ [ HH.a [ HP.href $ appUri r ] [ HH.text $ appUri r ] ]
 
     viewPage :: AppRoute -> H.ParentHTML Query ChildQuery ChildSlot (AjaxM eff)
     viewPage (ThingR r) =
@@ -78,7 +74,7 @@ ui = H.parentComponent
     --  HH.div_ []
 
     eval :: Query ~> H.ParentDSL State Query ChildQuery ChildSlot Void (AjaxM eff)
-    eval (Get routeEl next) = do
+    eval (Get routeEl next) = debug "app eval" do
         modify (_ { currentAppR = routeEl })
         pure next
 

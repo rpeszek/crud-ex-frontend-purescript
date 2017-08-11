@@ -19,8 +19,8 @@ ui :: forall m. H.Component HH.HTML Query Input Void m
 ui =
   H.component
     { initialState: const initialState
-    , render
-    , eval
+    , render : render
+    , eval : eval
     , receiver: HE.input HandleInput
     }
   where

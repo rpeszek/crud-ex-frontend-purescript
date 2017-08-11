@@ -4,45 +4,37 @@ import Prelude
 import CrudReuse.Common
 import Control.Alt ((<|>))
 import CrudReuse.Model (KeyT(..))
-import Network.HTTP.Affjax.Response (ResponseType(..))
 import Routing.Match (Match)
 import Routing.Match.Class (lit, int, str)
 
-data CrudRoutes a
-    = List 
-    | View (KeyT a)
-    | Edit (KeyT a)
-    | NotDone String -- just to simplify development
+data CrudRoute a
+    = ListR 
+    | ViewR (KeyT a)
+    | EditR (KeyT a)
 
 --TODO
-instance showCrudRoutes :: EntityRoute a => Show (CrudRoutes a) where
-  show List = "List " <> displayRoute (Proxy :: Proxy a) 
-  show (View (KeyT id)) = "View " <> displayRoute (Proxy :: Proxy a) <> " " <> show id
-  show (Edit (KeyT id)) = "Edit " <> displayRoute (Proxy :: Proxy a) <> " " <> show id
-  show (NotDone str) = "NotDone " <> displayRoute (Proxy :: Proxy a) <> " " <> str
+instance showCrudRoute :: EntityRoute a => Show (CrudRoute a) where
+  show ListR = "List " <> displayRoute (Proxy :: Proxy a) 
+  show (ViewR (KeyT id)) = "View " <> displayRoute (Proxy :: Proxy a) <> " " <> show id
+  show (EditR (KeyT id)) = "Edit " <> displayRoute (Proxy :: Proxy a) <> " " <> show id
 
-crudUri :: forall a. EntityRoute a => CrudRoutes a -> String
-crudUri List  = "#/" <> baseUri (Proxy :: Proxy a) <> "/list"
-crudUri (View (KeyT id)) = "#/" <> baseUri (Proxy :: Proxy a) <> "/view/" <> show id
-crudUri (Edit (KeyT id)) = "#/" <> baseUri (Proxy :: Proxy a) <> "/edit/" <> show id
-crudUri (NotDone str) = "#/" <> baseUri (Proxy :: Proxy a) <> "/notDone/"  <> str
+crudUri :: forall a. EntityRoute a => CrudRoute a -> String
+crudUri ListR  = "#/" <> baseUri (Proxy :: Proxy a) <> "/list"
+crudUri (ViewR (KeyT id)) = "#/" <> baseUri (Proxy :: Proxy a) <> "/view/" <> show id
+crudUri (EditR (KeyT id)) = "#/" <> baseUri (Proxy :: Proxy a) <> "/edit/" <> show id
 
 
-crudRoute :: forall a. EntityRoute a => Match (CrudRoutes a)
+crudRoute :: forall a. EntityRoute a => Match (CrudRoute a)
 crudRoute = list
-      <|> view
-      <|> edit
-      <|> notDone
-  where
-    list = List <$ (homeSlash *> lit bcrudUri *> lit "list")
-    view = View <$> (homeSlash *> lit bcrudUri *> lit "view" *> aKey)
-    edit = Edit <$> (homeSlash *> lit bcrudUri *> lit "edit" *> aKey)
-    notDone = NotDone <$> (homeSlash *> lit bcrudUri *> lit "notDone" *> str)
-    bcrudUri = baseUri (Proxy :: Proxy a)
-    --int :: Match Int
-    --int = floor <$> num
-    aKey :: Match (KeyT a)
-    aKey = KeyT <$> int
+        <|> view
+        <|> edit
+   where
+      list = ListR <$  (homeSlash *> lit crudBaseUri *> lit "list")
+      view = ViewR <$> (homeSlash *> lit crudBaseUri *> lit "view" *> aKey)
+      edit = EditR <$> (homeSlash *> lit crudBaseUri *> lit "edit" *> aKey)
+      crudBaseUri = baseUri (Proxy :: Proxy a)
+      aKey :: Match (KeyT a)
+      aKey = KeyT <$> int
 
 msgUri :: String -> String 
 msgUri s = "#/msg/" <> s

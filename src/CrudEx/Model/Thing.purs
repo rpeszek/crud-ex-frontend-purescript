@@ -7,7 +7,7 @@ import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
 import CrudReuse.Common (class EntityGET, class EntityReadHTML, class EntityRoute, baseUri, displayRoute, getEntities, getEntity, listView, readView, EntityURI)
 import CrudReuse.Model (Entity(..), KeyT(..))
-import CrudReuse.Routing (CrudRoutes(..), crudUri)
+import CrudReuse.Routing (CrudRoute(..), crudUri)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Generic (class Generic, gShow)
@@ -40,7 +40,7 @@ instance htmlReadThing :: EntityReadHTML Thing where
       ]
    listView (Entity obj) = 
       let Thing thing = obj.entity :: Thing
-      in HH.div_ [ HH.a [ HP.href $ crudUri (View obj.id)] [HH.text (thing.name)] ]
+      in HH.div_ [ HH.a [ HP.href $ crudUri (ViewR obj.id)] [HH.text (thing.name)] ]
 
 instance thingRoute :: EntityRoute Thing where
    baseUri _ = thingsURI
@@ -54,21 +54,3 @@ type ThingEntity = Entity (KeyT Thing) Thing
 
 thingsURI :: EntityURI
 thingsURI = "things"
-
-{-
-test :: String
-test = "[{\"id\":0,\"entity\":{\"userId\":null,\"name\":\"testName1\",\"description\":\"testDesc1\"}},{\"id\":1,\"entity\":{\"userId\":null,\"name\":\"testName2\",\"description\":\"testDesc2\"}}]"
-
-testP :: Either String (List ThingEntity)
-testP =  do 
-            json <- jsonParser test
-            decodeJson json
-
-test2 :: String
-test2 = "{\"id\":0,\"entity\":{\"userId\":null,\"name\":\"testName1\",\"description\":\"testDesc1\"}}"
-
-test2P :: Either String (ThingEntity)
-test2P =  do 
-            json <- jsonParser test2
-            decodeJson json
--}

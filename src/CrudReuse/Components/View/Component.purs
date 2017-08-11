@@ -6,10 +6,10 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import CrudReuse.Common (class EntityGET, class EntityReadHTML, class EntityRoute, AjaxM, Proxy(..), getEntities, getEntity, listView, readView)
-import CrudReuse.Model (Entity(..), KeyT(..), unKey, toEntity)
-import CrudReuse.Routing (CrudRoutes(..), crudUri)
+import CrudReuse.Model (Entity(..), KeyT, unKey, toEntity)
+import CrudReuse.Routing (CrudRoute(..), crudUri)
 import Data.Either (Either(..), either)
-import Data.Maybe (Maybe(..))
+--import Data.Maybe (Maybe(..))
 
 type Input model = KeyT model
 
@@ -36,15 +36,12 @@ initialState i = { loading: false, key: i, errOrModel: Left "Not Retrieved" }
 ui :: forall eff model. EntityReadHTML model => EntityGET eff model => EntityRoute model => Proxy model -> H.Component HH.HTML (Query model) (Input model) Void (AjaxM eff)
 ui proxy =
   H.component
-    { initialState: initState
-    , render 
-    , eval
+    { initialState: initialState
+    , render : render
+    , eval : eval
     , receiver: HE.input GetSingle
     }
   where
-  initState :: KeyT model -> State model
-  initState = initialState
-
   render :: State model -> H.ComponentHTML (Query model)
   render st =
     HH.form_ $
@@ -77,7 +74,7 @@ ui proxy =
                             , HE.onClick (HE.input_ $ GetSingle st.key)
                            ]
                            [ HH.text "Delete" ]
-                           , HH.a [ HP.href $ crudUri (List::CrudRoutes model)] [ HH.text "Cancel"]
+                           , HH.a [ HP.href $ crudUri (ListR::CrudRoute model)] [ HH.text "Cancel"]
                         ]
                      ] 
                  ]

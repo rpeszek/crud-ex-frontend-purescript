@@ -9,6 +9,7 @@ import CrudReuse.Common (class EntityGET, class EntityReadHTML, AjaxM, Proxy(..)
 import CrudReuse.Model (Entity, KeyT)
 import Data.Either (Either(..), either)
 import Data.Maybe (Maybe(..))
+import CrudReuse.Debug (debugShow, debug)
 
 type State model =
   { loading :: Boolean
@@ -30,18 +31,15 @@ initialState = { loading: false, errOrEntities: Left "Not Retrieved" }
   H.component does not receive initial call from runUI, this will be called from parent eventually
   https://github.com/slamdata/purescript-halogen/issues/444
 -}
-ui :: forall eff model. EntityReadHTML model => EntityGET eff model => Proxy model -> H.Component HH.HTML Query Input Void (AjaxM eff)
+ui :: forall eff model. Show model => EntityReadHTML model => EntityGET eff model => Proxy model -> H.Component HH.HTML Query Input Void (AjaxM eff)
 ui proxy =
   H.component
-    { initialState: const initState
-    , render
-    , eval
-    , receiver: HE.input HandleInput
+    { initialState: const initialState
+    , render : render
+    , eval : eval
+    , receiver: debug "list receiver" $ HE.input HandleInput
     }
-  where
-  initState :: State model
-  initState = initialState
-
+  where  
   render ::  State model -> H.ComponentHTML Query
   render st =
     HH.form_ $
@@ -67,7 +65,7 @@ ui proxy =
 
   eval :: Query ~> H.ComponentDSL (State model) Query Void (AjaxM eff)
   eval = case _ of
-    HandleInput _ next -> do
+    HandleInput _ next -> debug "list eval" do
       H.modify (_ { loading = true })
       errOrEntities <- H.liftAff $ getEntities
       H.modify (_ { loading = false, errOrEntities = errOrEntities })

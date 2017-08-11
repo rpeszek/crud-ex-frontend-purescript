@@ -15,7 +15,7 @@ import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
 import CrudReuse.Common (AjaxErrM, class EntityGET, class EntityReadHTML, class EntityRoute, baseUri, displayRoute, getEntities, getEntity, listView, readView, EntityURI)
 import CrudReuse.Model (Entity(..), KeyT(..))
-import CrudReuse.Routing (CrudRoutes(..), crudUri)
+import CrudReuse.Routing (CrudRoute(..), crudUri)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Array (find)
@@ -47,7 +47,7 @@ instance htmlReadOther :: EntityReadHTML Other where
       ]
    listView (Entity obj) = 
       let Other thing = obj.entity :: Other
-      in HH.div_ [ HH.a [ HP.href $ crudUri (View obj.id)] [HH.text (thing.name)] ]
+      in HH.div_ [ HH.a [ HP.href $ crudUri (ViewR obj.id)] [HH.text (thing.name)] ]
 
 instance thingRoute :: EntityRoute Other where
    baseUri _ = fakeURI
@@ -77,20 +77,3 @@ getSingleFake key =
         res :: Either String Other
         res = maybe (Left ("item not found " <> show key)) (\(Entity obj) -> Right obj.entity) maybeEnt 
     in pure $ res
-{-
-test :: String
-test = "[{\"id\":0,\"entity\":{\"userId\":null,\"name\":\"testName1\",\"description\":\"testDesc1\"}},{\"id\":1,\"entity\":{\"userId\":null,\"name\":\"testName2\",\"description\":\"testDesc2\"}}]"
-
-testP :: Either String (List OtherEntity)
-testP =  do 
-            json <- jsonParser test
-            decodeJson json
-
-test2 :: String
-test2 = "{\"id\":0,\"entity\":{\"userId\":null,\"name\":\"testName1\",\"description\":\"testDesc1\"}}"
-
-test2P :: Either String (OtherEntity)
-test2P =  do 
-            json <- jsonParser test2
-            decodeJson json
--}
