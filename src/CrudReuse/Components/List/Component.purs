@@ -37,7 +37,7 @@ ui proxy =
     { initialState: const initialState
     , render : render
     , eval : eval
-    , receiver: debug "list receiver" $ HE.input HandleInput
+    , receiver: {- debug "list receiver" $ -} HE.input HandleInput
     }
   where  
   render ::  State model -> H.ComponentHTML Query
@@ -48,15 +48,12 @@ ui proxy =
           case st.errOrEntities of
             Left err -> [
               HH.button
-                  [ HP.disabled st.loading
-                  , HE.onClick (HE.input_ $ HandleInput GetList)
+                  [ HE.onClick (HE.input_ $ HandleInput GetList)
                   ]
                   [ HH.text "Test Fetch" ]
             ]
             Right res ->
-              [ HH.h2_
-                  [ HH.text "List" ]
-              , HH.div_ $
+              [ HH.div_ $
                    map listView res 
               ]
        , HH.p_
@@ -65,7 +62,7 @@ ui proxy =
 
   eval :: Query ~> H.ComponentDSL (State model) Query Void (AjaxM eff)
   eval = case _ of
-    HandleInput _ next -> debug "list eval" do
+    HandleInput _ next -> {- debug "list eval" -} do
       H.modify (_ { loading = true })
       errOrEntities <- H.liftAff $ getEntities
       H.modify (_ { loading = false, errOrEntities = errOrEntities })

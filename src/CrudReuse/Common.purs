@@ -15,15 +15,15 @@ module CrudReuse.Common (
 ) where
 
 import Prelude
-import CrudReuse.Model
 import Halogen.HTML as HH
-import CrudReuse.Model (Entity(..))
 import Control.Monad.Aff (Aff)
+import CrudReuse.Effect.AppConfig (APPCONFIG)
+import CrudReuse.Model (Entity, KeyT)
 import Data.Either (Either)
 import Network.HTTP.Affjax (AJAX)
 
-type AjaxM eff = (Aff (ajax :: AJAX | eff))
-type AjaxErrM e a = Aff (ajax :: AJAX | e) (Either String a)
+type AjaxM eff = (Aff (ajax :: AJAX, appconf:: APPCONFIG | eff))
+type AjaxErrM e a = Aff (ajax :: AJAX, appconf:: APPCONFIG | e) (Either String a)
   
 {-
  It would be cleaner if I could define this for arbitrary monad effect:

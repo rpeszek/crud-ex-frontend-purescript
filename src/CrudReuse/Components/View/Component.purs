@@ -50,17 +50,14 @@ ui proxy =
           case st.errOrModel of
             Left err -> [
               HH.button
-                  [ HP.disabled st.loading
-                  , HE.onClick (HE.input_ $ GetSingle st.key)
+                  [ HE.onClick (HE.input_ $ GetSingle st.key)
                   ]
                   [ HH.text "Test Fetch" ]
             ]
             Right res ->
                let ent :: Entity (KeyT model) model
                    ent = Entity {id: st.key, entity: res}
-               in [ HH.h2_
-                   [ HH.text "Entity" ]
-                  , HH.div_
+               in [ HH.div_
                      [ 
                         readView ent
                       , HH.div_ [
