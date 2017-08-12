@@ -73,7 +73,8 @@ ui proxy = H.parentComponent
     eval :: (Query model) ~> H.ParentDSL (State model) (Query model) (ChildQuery model) ChildSlot Void (AjaxM eff)
     eval (Dispatch routeEl next) = debug "crud eval" do
       modify (_ { currentRoute = routeEl })
-      -- interestingly the following H.query' s seem not needed
+      --  |Interestingly, the following H.query' s seemed not needed, adding similar code to parent of
+      --   this component seems to do the trick
       _ <- case routeEl of 
               ListR    -> H.query' pathToList ListC.Slot (ListC.HandleInput ListC.GetList unit)
               ViewR k  -> H.query' pathToView ViewC.Slot (ViewC.GetSingle k unit)
