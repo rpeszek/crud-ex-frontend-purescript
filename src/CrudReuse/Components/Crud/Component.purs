@@ -8,12 +8,12 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Control.Monad.State.Class (modify)
-import CrudReuse.Common (class EntityGET, class EntityReadHTML, class EntityRoute, AjaxM, Proxy)
+import CrudReuse.Common (class EntityREST, class EntityReadHTML, class EntityRoute, AppM, Proxy)
+import CrudReuse.Debug (debug)
 import CrudReuse.Routing (CrudRoute(ViewR, ListR))
 import Data.Const (Const)
 import Halogen.Component.ChildPath (ChildPath, cp1, cp2, cp3)
 import Halogen.Data.Prism (type (\/), type (<\/>))
-import CrudReuse.Debug (debug)
 
 
 data Input model = Input (CrudRoute model)
@@ -47,7 +47,7 @@ pathToView = cp2
 pathToMessage :: forall model. ChildPath MsgC.Query (ChildQuery model) MsgC.Slot ChildSlot
 pathToMessage = cp3
 
-ui :: forall eff model. Show model => EntityReadHTML model => EntityGET eff model => EntityRoute model => Proxy model -> H.Component HH.HTML (Query model) (Input model) Void (AjaxM eff)
+ui :: forall eff model. Show model => EntityReadHTML model => EntityREST eff model => EntityRoute model => Proxy model -> H.Component HH.HTML (Query model) (Input model) Void (AppM eff)
 ui proxy = H.parentComponent
   { initialState: const init
   , render : render
@@ -55,14 +55,14 @@ ui proxy = H.parentComponent
   , receiver: HE.input (Dispatch <<< extractInput)
   }
   where
-    render :: State model -> H.ParentHTML (Query model) (ChildQuery model) ChildSlot (AjaxM eff)
+    render :: State model -> H.ParentHTML (Query model) (ChildQuery model) ChildSlot (AppM eff)
     render st =
       HH.div_
         [ HH.h1_ [ HH.text (show st.currentRoute) ] 
         , viewPage st.currentRoute
         ]
          
-    viewPage :: CrudRoute model -> H.ParentHTML (Query model) (ChildQuery model) ChildSlot (AjaxM eff)
+    viewPage :: CrudRoute model -> H.ParentHTML (Query model) (ChildQuery model) ChildSlot (AppM eff)
     viewPage ListR =
       HH.slot' pathToList ListC.Slot (ListC.ui proxy) ListC.GetList absurd
     viewPage (ViewR key) = 
@@ -70,7 +70,7 @@ ui proxy = H.parentComponent
     viewPage _ =
       HH.slot' pathToMessage MsgC.Slot MsgC.ui "Not Done" absurd
 
-    eval :: (Query model) ~> H.ParentDSL (State model) (Query model) (ChildQuery model) ChildSlot Void (AjaxM eff)
+    eval :: (Query model) ~> H.ParentDSL (State model) (Query model) (ChildQuery model) ChildSlot Void (AppM eff)
     eval (Dispatch routeEl next) = debug "crud eval" do
       modify (_ { currentRoute = routeEl })
       --  |Interestingly, the following H.query' s seemed not needed, adding similar code to parent of

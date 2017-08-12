@@ -4,7 +4,7 @@ import Prelude
 import Control.Monad.Aff (attempt)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Error.Class (throwError)
-import CrudReuse.Common (AjaxErrM, EntityURI, AjaxM)
+import CrudReuse.Common (ServerErrM, ServerM, EntityURI)
 import CrudReuse.Effect.AppConfig (getAppConfigBaseUrl)
 import CrudReuse.Model (KeyT(..), Entity)
 import Data.Argonaut (class DecodeJson, class EncodeJson, Json, decodeJson, encodeJson)
@@ -18,10 +18,10 @@ import Network.HTTP.Affjax (defaultRequest, affjax, AffjaxResponse)
  TODO error handling may need more thinking
 -}
 
-getBaseUrl :: forall e. AjaxM e String
+getBaseUrl :: forall e. ServerM e String
 getBaseUrl =   liftEff getAppConfigBaseUrl 
 
-getList :: forall e a. DecodeJson a => EntityURI -> AjaxErrM e (Array a)
+getList :: forall e a. DecodeJson a => EntityURI -> ServerErrM e (Array a)
 getList uri = 
   do 
      baseURL <- getBaseUrl
@@ -31,7 +31,7 @@ getList uri =
      let decode = (\x -> decodeJson x.response) :: AffjaxResponse Json -> Either String (Array a)
      either throwError (pure <<< decode) resp
 
-getSingle :: forall e a. DecodeJson a => EntityURI -> KeyT a -> AjaxErrM e a  
+getSingle :: forall e a. DecodeJson a => EntityURI -> KeyT a -> ServerErrM e a  
 getSingle uri (KeyT i) = 
   do 
      baseURL <- getBaseUrl
@@ -41,7 +41,7 @@ getSingle uri (KeyT i) =
      let decode = (\x -> decodeJson x.response) :: AffjaxResponse Json -> Either String a
      either throwError (pure <<< decode) resp
 
-postSingle :: forall e a. DecodeJson a => EncodeJson a => EntityURI -> a -> AjaxErrM e (Entity (KeyT a) a)
+postSingle :: forall e a. DecodeJson a => EncodeJson a => EntityURI -> a -> ServerErrM e (Entity (KeyT a) a)
 postSingle uri elem = 
   do 
      baseURL <- getBaseUrl
@@ -51,7 +51,7 @@ postSingle uri elem =
      let decode = (\x -> decodeJson x.response) :: AffjaxResponse Json -> Either String (Entity (KeyT a) a)
      either throwError (pure <<< decode) resp
 
-putSingle :: forall e a. DecodeJson a => EncodeJson a => EntityURI -> KeyT a -> a -> AjaxErrM e a  
+putSingle :: forall e a. DecodeJson a => EncodeJson a => EntityURI -> KeyT a -> a -> ServerErrM e a  
 putSingle uri (KeyT i) elem = 
   do 
      baseURL <- getBaseUrl
@@ -61,7 +61,7 @@ putSingle uri (KeyT i) elem =
      let decode = (\x -> decodeJson x.response) :: AffjaxResponse Json -> Either String a
      either throwError (pure <<< decode) resp
   
-deleteSingle :: forall e a. EntityURI -> KeyT a -> AjaxErrM e Unit  
+deleteSingle :: forall e a. EntityURI -> KeyT a -> ServerErrM e Unit  
 deleteSingle uri (KeyT i) = 
   do 
      baseURL <- getBaseUrl

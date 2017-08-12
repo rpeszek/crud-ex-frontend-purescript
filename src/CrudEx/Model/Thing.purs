@@ -5,7 +5,7 @@ import CrudReuse.Server as Serv
 import Data.Argonaut.Generic.Aeson as Generic
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
-import CrudReuse.Common (class EntityGET, class EntityReadHTML, class EntityRoute, baseUri, displayRoute, getEntities, getEntity, listView, readView, EntityURI)
+import CrudReuse.Common (class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, baseUri, displayRoute, getEntities, getEntity, postEntity, putEntity, deleteEntity, listView, readView, EntityURI)
 import CrudReuse.Model (Entity(..), KeyT(..))
 import CrudReuse.Routing (CrudRoute(..), crudUri)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
@@ -49,6 +49,12 @@ instance thingRoute :: EntityRoute Thing where
 instance serverGet :: EntityGET e Thing where
    getEntities = Serv.getList thingsURI
    getEntity = Serv.getSingle thingsURI
+
+instance serverREST :: EntityREST e Thing where
+   postEntity = Serv.postSingle thingsURI
+   putEntity = Serv.putSingle thingsURI
+   deleteEntity = Serv.deleteSingle thingsURI
+
 
 type ThingEntity = Entity (KeyT Thing) Thing
 

@@ -5,11 +5,11 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import CrudReuse.Common (class EntityGET, class EntityReadHTML, AjaxM, Proxy(..), getEntities, listView)
+import CrudReuse.Common (class EntityGET, class EntityREST, class EntityReadHTML, AppM, Proxy(..), ServerErrM, getEntities, listView)
+import CrudReuse.Debug (debugShow, debug)
 import CrudReuse.Model (Entity, KeyT)
 import Data.Either (Either(..), either)
 import Data.Maybe (Maybe(..))
-import CrudReuse.Debug (debugShow, debug)
 
 type State model =
   { loading :: Boolean
@@ -31,7 +31,7 @@ initialState = { loading: false, errOrEntities: Left "Not Retrieved" }
   H.component does not receive initial call from runUI, this will be called from parent eventually
   https://github.com/slamdata/purescript-halogen/issues/444
 -}
-ui :: forall eff model. Show model => EntityReadHTML model => EntityGET eff model => Proxy model -> H.Component HH.HTML Query Input Void (AjaxM eff)
+ui :: forall eff model. Show model => EntityReadHTML model => EntityREST eff model => Proxy model -> H.Component HH.HTML Query Input Void (AppM eff)
 ui proxy =
   H.component
     { initialState: const initialState
@@ -60,7 +60,7 @@ ui proxy =
             [ HH.text (if st.loading then "Working..." else either id (const "") st.errOrEntities) ]
       ]
 
-  eval :: Query ~> H.ComponentDSL (State model) Query Void (AjaxM eff)
+  eval :: Query ~> H.ComponentDSL (State model) Query Void (AppM eff)
   eval = case _ of
     HandleInput _ next -> {- debug "list eval" -} do
       H.modify (_ { loading = true })

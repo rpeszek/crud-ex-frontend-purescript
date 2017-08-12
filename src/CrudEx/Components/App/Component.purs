@@ -14,7 +14,7 @@ import Control.Monad.State.Class (modify)
 import CrudEx.Model.Other (Other)
 import CrudEx.Model.Thing (Thing)
 import CrudEx.Routing (AppRoute(..), appRoute, appUri)
-import CrudReuse.Common (AjaxM, Proxy(Proxy))
+import CrudReuse.Common (AppM, Proxy(Proxy))
 import CrudReuse.Debug (debug)
 import CrudReuse.Routing (CrudRoute(ListR))
 import Data.Const (Const)
@@ -40,7 +40,7 @@ pathToOther = cp2
 pathToMessage :: ChildPath MsgC.Query ChildQuery MsgC.Slot ChildSlot
 pathToMessage = cp3
 
-ui :: forall eff. H.Component HH.HTML Query Input Void (AjaxM eff)
+ui :: forall eff. H.Component HH.HTML Query Input Void (AppM eff)
 ui = H.parentComponent
   { initialState: const $ { currentAppR : MsgR "Start"}
   , render
@@ -48,7 +48,7 @@ ui = H.parentComponent
   , receiver: const Nothing
   }
   where
-    render :: State -> H.ParentHTML Query ChildQuery ChildSlot (AjaxM eff)
+    render :: State -> H.ParentHTML Query ChildQuery ChildSlot (AppM eff)
     render st =
       HH.div_
         [ HH.h4_ [ HH.text ("Menu") ]
@@ -63,7 +63,7 @@ ui = H.parentComponent
     link :: forall p i. AppRoute -> HH.HTML p i
     link r = HH.li_ [ HH.a [ HP.href $ appUri r ] [ HH.text $ appUri r ] ]
 
-    viewPage :: AppRoute -> H.ParentHTML Query ChildQuery ChildSlot (AjaxM eff)
+    viewPage :: AppRoute -> H.ParentHTML Query ChildQuery ChildSlot (AppM eff)
     viewPage (ThingR r) =
       HH.slot' pathToThing CrudC.Slot (CrudC.ui Proxy) (CrudC.Input r) absurd
     viewPage (OtherR r) =
@@ -73,7 +73,7 @@ ui = H.parentComponent
     --viewPage _ =
     --  HH.div_ []
 
-    eval :: Query ~> H.ParentDSL State Query ChildQuery ChildSlot Void (AjaxM eff)
+    eval :: Query ~> H.ParentDSL State Query ChildQuery ChildSlot Void (AppM eff)
     eval (Get routeEl next) = debug "app eval" do
         modify (_ { currentAppR = routeEl })
         _ <- case routeEl of 
@@ -85,12 +85,11 @@ ui = H.parentComponent
 dispatch ::  forall eff. H.HalogenIO Query Void (Aff (HA.HalogenEffects eff))
             -> Aff (HA.HalogenEffects eff) Unit
 dispatch driver = do
-  Tuple old new <- matchesAff appRoute
-  dispatchNewRoute driver old new
+  Tuple _ new <- matchesAff appRoute
+  dispatchNewRoute driver new
 
 dispatchNewRoute :: forall eff. H.HalogenIO Query Void (Aff (HA.HalogenEffects eff))
-          -> Maybe AppRoute
           -> AppRoute
           -> Aff (HA.HalogenEffects eff) Unit
-dispatchNewRoute driver _ =
+dispatchNewRoute driver =
   driver.query <<< H.action <<< Get

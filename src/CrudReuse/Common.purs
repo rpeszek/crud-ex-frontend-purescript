@@ -1,9 +1,15 @@
 module CrudReuse.Common (
-  AjaxErrM
- , AjaxM
+  AppErrM
+ , AppM
+ , ServerErrM
+ , ServerM
  , class EntityGET
  , getEntities
  , getEntity
+ , class EntityREST
+ , putEntity
+ , postEntity
+ , deleteEntity
  , class EntityReadHTML
  , readView
  , listView
@@ -18,12 +24,17 @@ import Prelude
 import Halogen.HTML as HH
 import Control.Monad.Aff (Aff)
 import CrudReuse.Effect.AppConfig (APPCONFIG)
+import CrudReuse.Effect.Navigation (NAVIGATION)
 import CrudReuse.Model (Entity, KeyT)
 import Data.Either (Either)
 import Network.HTTP.Affjax (AJAX)
 
-type AjaxM eff = (Aff (ajax :: AJAX, appconf:: APPCONFIG | eff))
-type AjaxErrM e a = Aff (ajax :: AJAX, appconf:: APPCONFIG | e) (Either String a)
+type AppM eff = (Aff (ajax :: AJAX, appconf:: APPCONFIG, nav:: NAVIGATION | eff))
+type AppErrM e a = AppM e (Either String a)
+
+-- | TODO why do I need NAVIGATION here?
+type ServerM eff = (Aff (ajax :: AJAX, appconf:: APPCONFIG, nav:: NAVIGATION | eff))
+type ServerErrM e a = ServerM e (Either String a)
   
 {-
  It would be cleaner if I could define this for arbitrary monad effect:
@@ -32,17 +43,17 @@ class EntityGET e a where
 
  but I do not know how to do lambda level expressions in purescript (functional dependencies?)
  code like 
-instance restGet :: EntityGET (AjaxErrM e) Thing where ...
+instance restGet :: EntityGET (AppErrM e) Thing where ...
 does not compile
 -}
 class EntityGET e a where
-  getEntities :: AjaxErrM e (Array (Entity(KeyT a) a)) 
-  getEntity :: KeyT a -> AjaxErrM e a 
+  getEntities :: ServerErrM e (Array (Entity(KeyT a) a)) 
+  getEntity :: KeyT a -> ServerErrM e a 
 
 class (EntityGET e a) <= EntityREST e a where
-  postEntity :: a -> AjaxErrM e (Entity(KeyT a) a)
-  putEntity :: KeyT a -> a -> AjaxErrM e a
-  deleteEntity :: KeyT a -> AjaxErrM e Unit
+  postEntity :: a -> ServerErrM e (Entity(KeyT a) a)
+  putEntity :: KeyT a -> a -> ServerErrM e a
+  deleteEntity :: KeyT a -> ServerErrM e Unit
 
 class EntityRoute a where
    baseUri :: Proxy a -> String
