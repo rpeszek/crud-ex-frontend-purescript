@@ -5,7 +5,7 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import CrudReuse.Common (class EntityREST, class EntityReadHTML, class EntityRoute, AppM, Proxy(..), deleteEntity, getEntities, getEntity, listView, readView)
+import CrudReuse.ReuseApi (class EntityREST, class EntityReadHTML, class EntityRoute, AppM, Proxy(..), deleteEntity, getEntities, getEntity, listView, readView)
 import CrudReuse.Effect.Navigation (navigateTo)
 import CrudReuse.Model (Entity(..), KeyT, unKey, toEntity)
 import CrudReuse.Routing (CrudRoute(..), crudUri)
@@ -28,8 +28,8 @@ data Query model a
     | Delete (KeyT model) a
 
 data Slot = Slot
-derive instance eqListSlot :: Eq Slot
-derive instance ordListSlot :: Ord Slot
+derive instance eqViewSlot :: Eq Slot
+derive instance ordViewSlot :: Ord Slot
   
 initialState :: forall model . KeyT model -> State model
 initialState i = { loading: false, key: i, maybeModel: Nothing, maybeMsg: Just "Not Retrieved" }
@@ -38,7 +38,11 @@ initialState i = { loading: false, key: i, maybeModel: Nothing, maybeMsg: Just "
   H.component does not receive initial call from runUI, this will be called from parent eventually
   https://github.com/slamdata/purescript-halogen/issues/444
 -}
-ui :: forall eff model. EntityReadHTML model => EntityREST eff model => EntityRoute model => Proxy model -> H.Component HH.HTML (Query model) (Input model) Void (AppM eff)
+ui :: forall eff model. 
+          EntityReadHTML model => 
+          EntityREST eff model =>   --this UI can delete model, hence REST not just GET
+          EntityRoute model => 
+          Proxy model -> H.Component HH.HTML (Query model) (Input model) Void (AppM eff)
 ui proxy =
   H.component
     { initialState: initialState
@@ -69,7 +73,8 @@ ui proxy =
                             , HE.onClick (HE.input_ $ GetSingle st.key)
                            ]
                            [ HH.text "Refresh" ]
-                          , HH.button [ 
+                           , HH.a [ HP.href $ crudUri (EditR st.key)] [ HH.text "Edit"]
+                           , HH.button [ 
                              HP.disabled st.loading
                             , HE.onClick (HE.input_ $ Delete st.key)
                            ]

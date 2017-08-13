@@ -13,7 +13,8 @@ import CrudReuse.Server as Serv
 import Data.Argonaut.Generic.Aeson as Generic
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
-import CrudReuse.Common (class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, AppErrM, EntityURI, baseUri, deleteEntity, displayRoute, getEntities, getEntity, listView, postEntity, putEntity, readView)
+import Halogen.HTML.Events as HE
+import CrudReuse.ReuseApi (EditQuery(SetVal), class EntityEditHTML, editView, class EntityBuilder, empty, setFieldValue, class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, AppErrM, EntityURI, baseUri, deleteEntity, displayRoute, getEntities, getEntity, listView, postEntity, putEntity, readView)
 import CrudReuse.Model (Entity(..), KeyT(..))
 import CrudReuse.Routing (CrudRoute(..), crudUri)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
@@ -41,15 +42,15 @@ instance showOther :: Show Other where
 
 instance htmlReadOther :: EntityReadHTML Other where
    readView (Entity obj) =
-      let Other thing = obj.entity :: Other
+      let Other obj = obj.entity :: Other
       in HH.div_ [
-          HH.div_ [ HH.text "name", HH.text thing.name ] 
+          HH.div_ [ HH.text "name", HH.text obj.name ] 
       ]
    listView (Entity obj) = 
-      let Other thing = obj.entity :: Other
-      in HH.div_ [ HH.a [ HP.href $ crudUri (ViewR obj.id)] [HH.text (thing.name)] ]
+      let Other o = obj.entity :: Other
+      in HH.div_ [ HH.a [ HP.href $ crudUri (ViewR obj.id)] [HH.text (o.name)] ]
 
-instance thingRoute :: EntityRoute Other where
+instance otherRoute :: EntityRoute Other where
    baseUri _ = fakeURI
    displayRoute _ = "Other"
 
@@ -61,6 +62,26 @@ instance serverREST :: EntityREST e Other where
    postEntity _ = pure $ Left "not implemented"
    putEntity _ _ = pure $ Left "not implemented"
    deleteEntity _ = pure $ Left "not implemented"
+
+instance entityBuilder :: EntityBuilder Other where
+  empty = Other {name: ""}
+  setFieldValue key value (Other obj) = 
+        case key of 
+          "name" -> Right $ Other obj{ name = value}
+          _ -> Left $ "Invalid key " <> key
+
+instance htmlEdit :: EntityEditHTML Other where
+  editView (Other obj) = 
+                     HH.div_ $
+                      [ HH.label_
+                           [ HH.div_ [ HH.text "name:" ]
+                          , HH.input
+                              [ HP.value obj.name
+                                , HE.onValueInput (HE.input $ SetVal "name")
+                              ]
+                           ]
+                      ]
+
 
 type OtherEntity = Entity (KeyT Other) Other
 

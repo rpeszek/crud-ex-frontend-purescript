@@ -39,6 +39,9 @@ data Entity a b =
 toEntity :: forall b. Int -> b -> Entity (KeyT b) b 
 toEntity id b = Entity {id: KeyT id, entity: b}
 
+toEntity_ :: forall b. KeyT b -> b -> Entity (KeyT b) b 
+toEntity_ id b = Entity {id: id, entity: b}
+
 -- https://github.com/purescript-contrib/purescript-argonaut/blob/master/examples/Examples/Data/Argonaut/Record.purs
 instance decodeJsonEntity :: DecodeJson b => DecodeJson (Entity (KeyT b) b) where
    decodeJson j = do

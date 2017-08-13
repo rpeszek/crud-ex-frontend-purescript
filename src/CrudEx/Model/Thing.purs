@@ -5,14 +5,15 @@ import CrudReuse.Server as Serv
 import Data.Argonaut.Generic.Aeson as Generic
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
-import CrudReuse.Common (class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, baseUri, displayRoute, getEntities, getEntity, postEntity, putEntity, deleteEntity, listView, readView, EntityURI)
+import Halogen.HTML.Events as HE
+import CrudReuse.ReuseApi (EditQuery(SetVal), class EntityEditHTML, editView, class EntityBuilder, empty, setFieldValue, class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, baseUri, displayRoute, getEntities, getEntity, postEntity, putEntity, deleteEntity, listView, readView, EntityURI)
 import CrudReuse.Model (Entity(..), KeyT(..))
 import CrudReuse.Routing (CrudRoute(..), crudUri)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
+import Data.Either (Either(..))
 import Data.Generic (class Generic, gShow)
-import Data.Maybe (Maybe)
-import Network.HTTP.Affjax.Response (ResponseType(..))
+import Data.Maybe (Maybe(..))
 import Prim (Int, String)
 
 
@@ -55,6 +56,32 @@ instance serverREST :: EntityREST e Thing where
    putEntity = Serv.putSingle thingsURI
    deleteEntity = Serv.deleteSingle thingsURI
 
+instance entityBuilder :: EntityBuilder Thing where
+  empty = Thing {name: "", description: "", userId: Nothing}
+  setFieldValue key value (Thing obj) = 
+        case key of 
+          "name" -> Right $ Thing obj{ name = value}
+          "description" -> Right $ Thing obj{description = value}
+          _ -> Left $ "Invalid key " <> key
+
+instance htmlEdit :: EntityEditHTML Thing where
+  editView (Thing obj) = 
+                     HH.div_ $
+                      [ HH.label_
+                           [ HH.div_ [ HH.text "name:" ]
+                          , HH.input
+                              [ HP.value obj.name
+                                , HE.onValueInput (HE.input $ SetVal "name")
+                              ]
+                           ]
+                      , HH.label_
+                           [ HH.div_ [ HH.text "description:" ]
+                          , HH.input
+                              [ HP.value obj.description
+                                , HE.onValueInput (HE.input $ SetVal "description")
+                              ]
+                           ]
+                      ]
 
 type ThingEntity = Entity (KeyT Thing) Thing
 

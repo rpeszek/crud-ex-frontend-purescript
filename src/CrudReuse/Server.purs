@@ -4,7 +4,7 @@ import Prelude
 import Control.Monad.Aff (attempt)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Error.Class (throwError)
-import CrudReuse.Common (ServerErrM, ServerM, EntityURI)
+import CrudReuse.ReuseApi (ServerErrM, ServerM, EntityURI)
 import CrudReuse.Effect.AppConfig (getAppConfigBaseUrl)
 import CrudReuse.Model (KeyT(..), Entity)
 import Data.Argonaut (class DecodeJson, class EncodeJson, Json, decodeJson, encodeJson)

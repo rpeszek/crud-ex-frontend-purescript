@@ -5,9 +5,10 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import CrudReuse.Common (class EntityGET, class EntityREST, class EntityReadHTML, AppM, Proxy(..), ServerErrM, getEntities, listView)
+import CrudReuse.ReuseApi (class EntityGET, class EntityReadHTML, class EntityRoute, AppM, Proxy(..), ServerErrM, getEntities, listView)
 import CrudReuse.Debug (debugShow, debug)
 import CrudReuse.Model (Entity, KeyT)
+import CrudReuse.Routing (CrudRoute(..), crudUri)
 import Data.Either (Either(..), either)
 import Data.Maybe (Maybe(..))
 
@@ -31,7 +32,12 @@ initialState = { loading: false, errOrEntities: Left "Not Retrieved" }
   H.component does not receive initial call from runUI, this will be called from parent eventually
   https://github.com/slamdata/purescript-halogen/issues/444
 -}
-ui :: forall eff model. Show model => EntityReadHTML model => EntityREST eff model => Proxy model -> H.Component HH.HTML Query Input Void (AppM eff)
+ui :: forall eff model. 
+              Show model => 
+              EntityRoute model => 
+              EntityReadHTML model => 
+              EntityGET eff model => 
+              Proxy model -> H.Component HH.HTML Query Input Void (AppM eff)
 ui proxy =
   H.component
     { initialState: const initialState
@@ -42,7 +48,7 @@ ui proxy =
   where  
   render ::  State model -> H.ComponentHTML Query
   render st =
-    HH.form_ $
+    HH.div_ $
       [ 
         HH.div_
           case st.errOrEntities of
@@ -56,6 +62,7 @@ ui proxy =
               [ HH.div_ $
                    map listView res 
               ]
+       , HH.p_ [HH.a [ HP.href $ crudUri (CreateR :: CrudRoute model)] [ HH.text "Create"]]
        , HH.p_
             [ HH.text (if st.loading then "Working..." else either id (const "") st.errOrEntities) ]
       ]
