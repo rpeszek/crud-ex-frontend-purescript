@@ -5,9 +5,10 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import CrudReuse.ReuseApi (class EntityGET, class EntityReadHTML, class EntityRoute, AppM, Proxy(..), ServerErrM, getEntities, listView)
 import CrudReuse.Debug (debugShow, debug)
+import CrudReuse.Effect.Navigation (liftNav)
 import CrudReuse.Model (Entity, KeyT)
+import CrudReuse.ReuseApi (class EntityGET, class EntityReadHTML, class EntityRoute, AppM, Proxy(..), ServerErrM, getEntities, listView)
 import CrudReuse.Routing (CrudRoute(..), crudUri)
 import Data.Either (Either(..), either)
 import Data.Maybe (Maybe(..))
@@ -71,6 +72,6 @@ ui proxy =
   eval = case _ of
     HandleInput _ next -> {- debug "list eval" -} do
       H.modify (_ { loading = true })
-      errOrEntities <- H.liftAff $ getEntities
+      errOrEntities <- H.liftAff $ liftNav $ getEntities
       H.modify (_ { loading = false, errOrEntities = errOrEntities })
       pure next

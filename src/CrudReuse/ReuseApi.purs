@@ -27,14 +27,7 @@ import Network.HTTP.Affjax (AJAX)
 type AppM eff = (Aff (ajax :: AJAX, appconf:: APPCONFIG, nav:: NAVIGATION | eff))
 type AppErrM e a = AppM e (Either String a)
 
-{-
-  Ideally ServerM should not list NAVIGATION effect but this breaks compilation. 
-  Looks like compiler bug ??
-  it has problem coercing Aff(eff) to Aff(nav :: NAVIGATION| eff)
-  in the presence of type classes like EntityREST
-  liftAff works in some places and not in others
--}
-type ServerM eff = AppM eff -- (Aff (ajax :: AJAX, appconf:: APPCONFIG | eff))
+type ServerM eff = (Aff (ajax :: AJAX, appconf:: APPCONFIG | eff))
 type ServerErrM e a = ServerM e (Either String a)
   
 {-

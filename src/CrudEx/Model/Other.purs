@@ -15,7 +15,7 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import CrudReuse.Model (Entity(..), KeyT(..))
-import CrudReuse.ReuseApi (class EntityBuilder, class EntityEditHTML, class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, AppErrM, EditQuery(SetVal), EntityURI, ServerErrM, baseUri, deleteEntity, displayRoute, editView, empty, getEntities, getEntity, listView, postEntity, putEntity, readView, setFieldValue)
+import CrudReuse.ReuseApi (ServerErrM, EditQuery(SetVal), class EntityEditHTML, editView, class EntityBuilder, empty, setFieldValue, class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, AppErrM, EntityURI, baseUri, deleteEntity, displayRoute, getEntities, getEntity, listView, postEntity, putEntity, readView)
 import CrudReuse.Routing (CrudRoute(..), crudUri)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)

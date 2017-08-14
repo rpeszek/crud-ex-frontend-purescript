@@ -6,10 +6,11 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Control.Comonad ((=>=))
-import CrudReuse.ReuseApi (EditInput(..), EditQuery(..), class EntityREST, getEntity, putEntity_, postEntity, class EntityEditHTML, editView, class EntityRoute, AppM, Proxy(..), class EntityBuilder, empty, setFieldValue)
+import Control.Monad.Aff.Class (liftAff)
 import CrudReuse.Debug (debugShow)
-import CrudReuse.Effect.Navigation (navigateTo)
+import CrudReuse.Effect.Navigation (liftNav, navigateTo)
 import CrudReuse.Model (Entity(..), KeyT, toEntity, unKey)
+import CrudReuse.ReuseApi (AppErrM, EditInput(..), EditQuery(..), class EntityREST, getEntity, putEntity_, postEntity, class EntityEditHTML, editView, class EntityRoute, AppM, Proxy(..), class EntityBuilder, empty, setFieldValue)
 import CrudReuse.Routing (CrudRoute(..), crudUri)
 import DOM.Event.KeyboardEvent (key)
 import Data.Either (Either(..), either)
@@ -97,7 +98,7 @@ ui proxy =
   eval = case _ of
     Set (Retrieve key) next -> do
       H.modify (_ { loading = true, maybeKey = Just key })
-      errOrModel <- H.liftAff $ getEntity key
+      errOrModel <-  H.liftAff $ liftNav $ getEntity key
       case errOrModel of 
          Left msg -> H.modify (_ { loading = false, maybeErrMsg = Just msg })
          Right mdl -> H.modify (_ { loading = false, model = mdl, maybeErrMsg = Nothing })
@@ -122,8 +123,8 @@ ui proxy =
              Nothing -> do
                H.modify (_ {loading = true})
                resOrErr <- case st.maybeKey of 
-                    Nothing -> H.liftAff $  postEntity st.model
-                    Just key ->   H.liftAff $  putEntity_ key st.model
+                    Nothing -> H.liftAff $ liftNav $ postEntity st.model
+                    Just key ->   H.liftAff $ liftNav $  putEntity_ key st.model
                case debugShow "save res" resOrErr of 
                     Left errMsg -> H.modify (_ {loading = false, maybeErrMsg = Just errMsg})
                     Right _ ->  H.liftEff $ navigateTo  $ crudUri $ returnRoute st
