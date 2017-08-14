@@ -12,10 +12,10 @@ import Prelude
 import CrudReuse.Server as Serv
 import Data.Argonaut.Generic.Aeson as Generic
 import Halogen.HTML as HH
-import Halogen.HTML.Properties as HP
 import Halogen.HTML.Events as HE
-import CrudReuse.ReuseApi (EditQuery(SetVal), class EntityEditHTML, editView, class EntityBuilder, empty, setFieldValue, class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, AppErrM, EntityURI, baseUri, deleteEntity, displayRoute, getEntities, getEntity, listView, postEntity, putEntity, readView)
+import Halogen.HTML.Properties as HP
 import CrudReuse.Model (Entity(..), KeyT(..))
+import CrudReuse.ReuseApi (class EntityBuilder, class EntityEditHTML, class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, AppErrM, EditQuery(SetVal), EntityURI, ServerErrM, baseUri, deleteEntity, displayRoute, editView, empty, getEntities, getEntity, listView, postEntity, putEntity, readView, setFieldValue)
 import CrudReuse.Routing (CrudRoute(..), crudUri)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
@@ -94,10 +94,10 @@ otherStore = [
   , Entity {id: KeyT 1, entity: Other {name: "other 1"}}
 ]
 
-getListFake :: forall e. AppErrM e (Array OtherEntity)
+getListFake :: forall e. ServerErrM e (Array OtherEntity)
 getListFake = pure $ Right otherStore
 
-getSingleFake :: forall e. KeyT Other -> AppErrM e Other
+getSingleFake :: forall e. KeyT Other -> ServerErrM e Other
 getSingleFake key = 
     let maybeEnt = find (\(Entity obj) -> obj.id == key) otherStore
         res :: Either String Other
