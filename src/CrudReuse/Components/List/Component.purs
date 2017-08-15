@@ -1,17 +1,15 @@
 module CrudReuse.Components.List.Component (State, Query(..), ui, Slot(..), Input(..)) where
 
 import Prelude
+import Data.Either (Either(..), either)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import CrudReuse.Debug (debugShow, debug)
 import CrudReuse.Effect.Navigation (liftNav)
 import CrudReuse.Model (Entity, KeyT)
-import CrudReuse.ReuseApi (class EntityGET, class EntityReadHTML, class EntityRoute, AppM, Proxy(..), ServerErrM, getEntities, listView)
+import CrudReuse.ReuseApi (class EntityGET, getEntities, listView, class EntityReadHTML, class EntityRoute, AppM, Proxy)
 import CrudReuse.Routing (CrudRoute(..), crudUri)
-import Data.Either (Either(..), either)
-import Data.Maybe (Maybe(..))
 
 type State model =
   { loading :: Boolean

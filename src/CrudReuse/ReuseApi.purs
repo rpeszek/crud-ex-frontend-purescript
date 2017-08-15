@@ -31,15 +31,34 @@ type ServerM eff = (Aff (ajax :: AJAX, appconf:: APPCONFIG | eff))
 type ServerErrM e a = ServerM e (Either String a)
   
 {-
- It would be cleaner if I could define this for arbitrary monad effect:
-class EntityGET e a where
-  getEntities :: e (Array (Entity(KeyT a) a)) 
+A much better design would be:
 
- but I do not know how to do lambda level expressions in purescript (functional dependencies?)
- code like 
-instance restGet :: EntityGET (AppErrM e) Thing where ...
-does not compile
+class Monad m <= EntityGetM m model where
+  getEntities :: m Array (Entity(KeyT model) model)) 
+  getEntity :: KeyT model -> m model 
+
+class (EntityGetM m model) <= EntityRestM m model where
+  postEntity :: model -> m Entity(KeyT model) model)
+  putEntity :: KeyT model -> model -> m model
+  deleteEntity :: KeyT model -> m Unit
+
+However this is currently problematic if I want (and I do) to use effect rows:
+https://github.com/purescript/purescript/issues/1510
+
+This will not compile ("Type class instance head is invalid due to use of <row> type"):
+instance serverGet ::  EntityGetM (Aff (ajax :: AJAX, appconf:: APPCONFIG | eff)) Thing where ...
+
+In the future something like this could be possible (purescript enhancing its functional dependencies):
+
+instance serverGet :: (eff ~ (ajax :: AJAX, appconf:: APPCONFIG)) => EntityGetM eff Thing where ...
+
+There is a possible workaround using new types:
+
+newtype ServerM eff a = ServerM (Aff (ajax :: AJAX, appconf:: APPCONFIG | eff) a)
+
+but this approach seems like work.
 -}
+
 class EntityGET e model where
   getEntities :: ServerErrM e (Array (Entity(KeyT model) model)) 
   getEntity :: KeyT model -> ServerErrM e model 

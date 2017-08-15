@@ -6,15 +6,15 @@ import Data.Argonaut.Generic.Aeson as Generic
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
 import Halogen.HTML.Events as HE
-import CrudReuse.ReuseApi (EditQuery(SetVal), class EntityEditHTML, editView, class EntityBuilder, empty, setFieldValue, class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, baseUri, displayRoute, getEntities, getEntity, postEntity, putEntity, deleteEntity, listView, readView, EntityURI)
-import CrudReuse.Model (Entity(..), KeyT(..))
-import CrudReuse.Routing (CrudRoute(..), crudUri)
-import Data.Argonaut.Decode (class DecodeJson, decodeJson)
-import Data.Argonaut.Encode (class EncodeJson, encodeJson)
+import Data.Argonaut.Decode (class DecodeJson)
+import Data.Argonaut.Encode (class EncodeJson)
 import Data.Either (Either(..))
 import Data.Generic (class Generic, gShow)
 import Data.Maybe (Maybe(..))
 import Prim (Int, String)
+import CrudReuse.Model (Entity(Entity), KeyT)
+import CrudReuse.Routing (CrudRoute(..), crudUri)
+import CrudReuse.ReuseApi (class EntityBuilder, class EntityEditHTML, class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, EditQuery(SetVal), EntityURI)
 
 
 data Thing =

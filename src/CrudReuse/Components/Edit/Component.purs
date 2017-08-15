@@ -1,21 +1,17 @@
 module CrudReuse.Components.Edit.Component where
 
 import Prelude
+import Data.Either (Either(..))
+import Data.Maybe (Maybe(..), isJust, maybe)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Control.Comonad ((=>=))
-import Control.Monad.Aff.Class (liftAff)
-import CrudReuse.Debug (debugShow)
 import CrudReuse.Effect.Navigation (liftNav, navigateTo)
-import CrudReuse.Model (Entity(..), KeyT, toEntity, unKey)
-import CrudReuse.ReuseApi (AppErrM, EditInput(..), EditQuery(..), class EntityREST, getEntity, putEntity_, postEntity, class EntityEditHTML, editView, class EntityRoute, AppM, Proxy(..), class EntityBuilder, empty, setFieldValue)
 import CrudReuse.Routing (CrudRoute(..), crudUri)
-import DOM.Event.KeyboardEvent (key)
-import Data.Either (Either(..), either)
-import Data.Maybe (Maybe(..), isJust, maybe)
-import Data.Unit (Unit)
+import CrudReuse.Model (KeyT)
+import CrudReuse.ReuseApi (class EntityBuilder, class EntityEditHTML, class EntityREST, class EntityRoute, AppM, EditInput(Empty, Retrieve), EditQuery(Set, Save, SetVal), Proxy, editView, empty, getEntity, postEntity, putEntity_, setFieldValue)
+
 --import Data.Maybe (Maybe(..))
 
 type Input model = EditInput model
@@ -125,7 +121,7 @@ ui proxy =
                resOrErr <- case st.maybeKey of 
                     Nothing -> H.liftAff $ liftNav $ postEntity st.model
                     Just key ->   H.liftAff $ liftNav $  putEntity_ key st.model
-               case debugShow "save res" resOrErr of 
+               case resOrErr of 
                     Left errMsg -> H.modify (_ {loading = false, maybeErrMsg = Just errMsg})
                     Right _ ->  H.liftEff $ navigateTo  $ crudUri $ returnRoute st
                pure unit

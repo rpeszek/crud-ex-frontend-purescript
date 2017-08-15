@@ -1,11 +1,11 @@
 module CrudReuse.Routing where
 
 import Prelude
-import CrudReuse.ReuseApi
 import Control.Alt ((<|>))
-import CrudReuse.Model (KeyT(..))
 import Routing.Match (Match)
 import Routing.Match.Class (lit, int, str)
+import CrudReuse.ReuseApi (class EntityRoute, Proxy(..), baseUri, displayRoute)
+import CrudReuse.Model (KeyT(..))
 
 data CrudRoute a
     = ListR 

@@ -9,22 +9,20 @@
 module CrudEx.Model.Other where
 
 import Prelude
-import CrudReuse.Server as Serv
+import Data.Array (find)
+import Data.Either (Either(..))
+import Data.Generic (class Generic, gShow)
+import Data.Maybe (maybe)
+import Prim (Int, String)
 import Data.Argonaut.Generic.Aeson as Generic
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
+import Data.Argonaut.Decode (class DecodeJson)
+import Data.Argonaut.Encode (class EncodeJson)
 import CrudReuse.Model (Entity(..), KeyT(..))
-import CrudReuse.ReuseApi (ServerErrM, EditQuery(SetVal), class EntityEditHTML, editView, class EntityBuilder, empty, setFieldValue, class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, AppErrM, EntityURI, baseUri, deleteEntity, displayRoute, getEntities, getEntity, listView, postEntity, putEntity, readView)
+import CrudReuse.ReuseApi (class EntityBuilder, class EntityEditHTML, class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, EditQuery(SetVal), EntityURI, ServerErrM)
 import CrudReuse.Routing (CrudRoute(..), crudUri)
-import Data.Argonaut.Decode (class DecodeJson, decodeJson)
-import Data.Argonaut.Encode (class EncodeJson, encodeJson)
-import Data.Array (find)
-import Data.Either (Either(..))
-import Data.Generic (class Generic, gShow)
-import Data.Maybe (Maybe, maybe)
-import Network.HTTP.Affjax.Response (ResponseType(..))
-import Prim (Int, String)
 
 
 data Other =

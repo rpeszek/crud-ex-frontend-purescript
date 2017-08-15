@@ -1,26 +1,26 @@
 module CrudEx.Components.App.Component where
   
 import Prelude
+import Data.Const (Const)
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
+import Control.Monad.Aff (Aff)
+import Control.Monad.State.Class (modify)
 import CrudReuse.Components.Crud.Component as CrudC
 import CrudReuse.Components.Message.Component as MsgC
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
-import Control.Monad.Aff (Aff)
-import Control.Monad.State.Class (modify)
+import Halogen.Component.ChildPath (ChildPath, cp1, cp2, cp3)
+import Halogen.Data.Prism (type (\/), type (<\/>))
+import Routing (matchesAff)
 import CrudEx.Model.Other (Other)
 import CrudEx.Model.Thing (Thing)
 import CrudEx.Routing (AppRoute(..), appRoute, appUri)
 import CrudReuse.ReuseApi (AppM, Proxy(Proxy))
 import CrudReuse.Debug (debug)
 import CrudReuse.Routing (CrudRoute(ListR))
-import Data.Const (Const)
-import Halogen.Component.ChildPath (ChildPath, cp1, cp2, cp3)
-import Halogen.Data.Prism (type (\/), type (<\/>))
-import Routing (matchesAff)
 
 type Input = AppRoute
 

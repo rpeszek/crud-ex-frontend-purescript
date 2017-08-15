@@ -6,11 +6,10 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import CrudReuse.Effect.Navigation (liftNav, navigateTo)
-import CrudReuse.Model (Entity(..), KeyT, unKey, toEntity)
-import CrudReuse.ReuseApi (class EntityREST, class EntityReadHTML, class EntityRoute, AppM, Proxy(..), deleteEntity, getEntities, getEntity, listView, readView)
+import CrudReuse.Model (Entity(Entity), KeyT)
+import CrudReuse.ReuseApi (class EntityREST, class EntityReadHTML, class EntityRoute, AppM, Proxy, deleteEntity, getEntity, readView)
 import CrudReuse.Routing (CrudRoute(..), crudUri)
-import DOM.Event.KeyboardEvent (key)
-import Data.Either (Either(..), either)
+import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), maybe)
 --import Data.Maybe (Maybe(..))
 

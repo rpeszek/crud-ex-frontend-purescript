@@ -4,11 +4,8 @@ import Prelude
 import Control.Alt ((<|>))
 import CrudEx.Model.Other (Other)
 import CrudEx.Model.Thing (Thing)
---import CrudReuse.ReuseApi (class EntityRoute, baseUri, displayRoute)
 import CrudReuse.Routing (CrudRoute, crudUri, crudRoute, msgRoute, msgUri)
---import Network.HTTP.Affjax.Response (ResponseType(..))
 import Routing.Match (Match)
---import Routing.Match.Class (lit, str)
 
 data AppRoute   
        = ThingR (CrudRoute Thing)
