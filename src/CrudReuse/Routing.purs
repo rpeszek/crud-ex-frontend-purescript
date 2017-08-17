@@ -7,20 +7,21 @@ import Routing.Match.Class (lit, int, str)
 import CrudReuse.ReuseApi (class EntityRoute, Proxy(..), baseUri, displayRoute)
 import CrudReuse.Model (KeyT(..))
 
+type HashUri = String
+
 data CrudRoute a
     = ListR 
     | ViewR (KeyT a)
     | EditR (KeyT a)
     | CreateR
 
---TODO
 instance showCrudRoute :: EntityRoute a => Show (CrudRoute a) where
   show ListR = "List " <> displayRoute (Proxy :: Proxy a) 
   show (ViewR (KeyT id)) = "View " <> displayRoute (Proxy :: Proxy a) <> " " <> show id
   show (EditR (KeyT id)) = "Edit " <> displayRoute (Proxy :: Proxy a) <> " " <> show id
   show CreateR = "Create " <> displayRoute (Proxy :: Proxy a)
 
-crudUri :: forall a. EntityRoute a => CrudRoute a -> String
+crudUri :: forall a. EntityRoute a => CrudRoute a -> HashUri
 crudUri ListR  = "#/" <> baseUri (Proxy :: Proxy a) <> "/list"
 crudUri (ViewR (KeyT id)) = "#/" <> baseUri (Proxy :: Proxy a) <> "/view/" <> show id
 crudUri (EditR (KeyT id)) = "#/" <> baseUri (Proxy :: Proxy a) <> "/edit/" <> show id
@@ -41,7 +42,7 @@ crudRoute = list
       aKey :: Match (KeyT a)
       aKey = KeyT <$> int
 
-msgUri :: String -> String 
+msgUri :: String -> HashUri 
 msgUri s = "#/msg/" <> s
 
 msgRoute :: Match String 
