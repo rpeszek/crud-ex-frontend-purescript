@@ -7,7 +7,7 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import CrudReuse.Effect.Navigation (liftNav, navigateTo)
+import CrudReuse.Effect.Navigation (liftAddNav, navigateTo)
 import CrudReuse.Routing (CrudRoute(..), crudUri)
 import CrudReuse.Model (KeyT)
 import CrudReuse.ReuseApi (class EntityBuilder, class EntityEditHTML, class EntityREST, class EntityRoute, AppM, EditInput(Empty, Retrieve), EditQuery(Set, Save, SetVal), Proxy, editView, empty, getEntity, postEntity, putEntity_, setFieldValue)
@@ -94,7 +94,7 @@ ui proxy =
   eval = case _ of
     Set (Retrieve key) next -> do
       H.modify (_ { loading = true, maybeKey = Just key })
-      errOrModel <-  H.liftAff $ liftNav $ getEntity key
+      errOrModel <-  H.liftAff $ liftAddNav $ getEntity key
       case errOrModel of 
          Left msg -> H.modify (_ { loading = false, maybeErrMsg = Just msg })
          Right mdl -> H.modify (_ { loading = false, model = mdl, maybeErrMsg = Nothing })
@@ -119,8 +119,8 @@ ui proxy =
              Nothing -> do
                H.modify (_ {loading = true})
                resOrErr <- case st.maybeKey of 
-                    Nothing -> H.liftAff $ liftNav $ postEntity st.model
-                    Just key ->   H.liftAff $ liftNav $  putEntity_ key st.model
+                    Nothing -> H.liftAff $ liftAddNav $ postEntity st.model
+                    Just key ->   H.liftAff $ liftAddNav $  putEntity_ key st.model
                case resOrErr of 
                     Left errMsg -> H.modify (_ {loading = false, maybeErrMsg = Just errMsg})
                     Right _ ->  H.liftEff $ navigateTo  $ crudUri $ returnRoute st

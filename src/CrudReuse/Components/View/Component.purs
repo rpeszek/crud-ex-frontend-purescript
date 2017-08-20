@@ -5,7 +5,7 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import CrudReuse.Effect.Navigation (liftNav, navigateTo)
+import CrudReuse.Effect.Navigation (liftAddNav, navigateTo)
 import CrudReuse.Model (Entity(Entity), KeyT)
 import CrudReuse.ReuseApi (class EntityREST, class EntityReadHTML, class EntityRoute, AppM, Proxy, deleteEntity, getEntity, readView)
 import CrudReuse.Routing (CrudRoute(..), crudUri)
@@ -89,13 +89,13 @@ ui proxy =
   eval = case _ of
     GetSingle key next -> do
       H.modify (_ { loading = true, key = key })
-      errOrModel <- H.liftAff $ liftNav $ getEntity key
+      errOrModel <- H.liftAff $ liftAddNav $ getEntity key
       case errOrModel of 
          Left msg -> H.modify (_ { loading = false, maybeMsg = Just msg })
          Right mdl -> H.modify (_ { loading = false, maybeModel = Just mdl })
       pure next
     Delete key next -> do
-      res <- H.liftAff $ liftNav $ deleteEntity key
+      res <- H.liftAff $ liftAddNav $ deleteEntity key
       case res of 
           Left msg -> H.modify (_ { loading = false, maybeMsg = Just msg }) 
           Right _  ->  H.liftEff $ navigateTo $ crudUri (ListR::CrudRoute model)

@@ -9,8 +9,9 @@ foreign import data NAVIGATION :: Effect
 
 foreign import navigateTo :: forall e. String -> Eff (nav :: NAVIGATION | e) Unit
 
--- | this experiment is to fix compalation issues where liftAff did not work
--- it appears purscript has problem coercing Aff eff to Aff (nav :: NAVIGATION | eff) 
-liftNav :: forall e a . Aff e a -> Aff (nav :: NAVIGATION | e) a
-liftNav = unsafeCoerceAff  
+-- | it appears purscript has problem coercing Aff eff to Aff (nav :: NAVIGATION | eff) 
+-- | this just treats computation with fewer effects as computation with additional 
+-- | NAVIGATION effect and appears to be morally sound
+liftAddNav :: forall e a . Aff e a -> Aff (nav :: NAVIGATION | e) a
+liftAddNav = unsafeCoerceAff  
    

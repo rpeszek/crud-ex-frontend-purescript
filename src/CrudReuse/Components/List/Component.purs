@@ -6,7 +6,7 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import CrudReuse.Effect.Navigation (liftNav)
+import CrudReuse.Effect.Navigation (liftAddNav)
 import CrudReuse.Model (Entity, KeyT)
 import CrudReuse.ReuseApi (class EntityGET, getEntities, listView, class EntityReadHTML, class EntityRoute, AppM, Proxy)
 import CrudReuse.Routing (CrudRoute(..), crudUri)
@@ -70,6 +70,6 @@ ui proxy =
   eval = case _ of
     HandleInput _ next -> {- debug "list eval" -} do
       H.modify (_ { loading = true })
-      errOrEntities <- H.liftAff $ liftNav $ getEntities
+      errOrEntities <- H.liftAff $ liftAddNav $ getEntities
       H.modify (_ { loading = false, errOrEntities = errOrEntities })
       pure next

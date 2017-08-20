@@ -49,7 +49,7 @@ I also expected lifting from fewer to more effects to be trivial.
 It seems to not work well with use of type classes that hardcode different sets of row effects, std use of liftEff/liftAff will not type check.  
 So I ended up doing something UGLY like this:
 ```PureScript
-liftNav :: forall e a . Aff e a -> Aff (nav :: NAVIGATION | e) a
-liftNav = unsafeCoerceAff  
+liftAddNav :: forall e a . Aff e a -> Aff (nav :: NAVIGATION | e) a
+liftAddNav = unsafeCoerceAff  
 ```
 This may mean that I do not know PureScript well enough. It had been only about 2 weeks. 
