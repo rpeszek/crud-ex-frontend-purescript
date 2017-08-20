@@ -13,7 +13,7 @@ import Data.Array (find)
 import Data.Either (Either(..))
 import Data.Generic (class Generic, gShow)
 import Data.Maybe (maybe)
-import Prim (Int, String)
+import Prim (Int, String, Array)
 import Data.Argonaut.Generic.Aeson as Generic
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
