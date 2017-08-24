@@ -1,24 +1,14 @@
 module CrudReuse.Model where
 
 import Prelude
---import Control.Alt (alt)
---import Control.Biapplicative (bipure)
---import Control.Monad.Except (throwError)
---import DOM.HTML.HTMLElement (offsetHeight)
 import Data.Argonaut (getField, toObject) --Json
---import Data.Argonaut.Core (JObject)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
---import Data.Argonaut.Parser (jsonParser)
 import Data.Either (Either(..))
---import Data.Foreign (F)
---import Data.Generic (class Generic, gShow)
 import Data.Maybe (Maybe(..))
---import Data.Tuple (Tuple(..))
---import Network.HTTP.Affjax.Response (class Respondable, fromResponse, responseType)
 import Prim (Int, String)
   
-data KeyT a = KeyT Int
+newtype KeyT a = KeyT Int
     
 derive instance eqKeyT ::  Eq (KeyT a)
 instance decodeJsonKeyT :: DecodeJson (KeyT a) where
@@ -31,7 +21,7 @@ instance showKeyT :: Show a => Show (KeyT a) where
 unKey :: forall a . KeyT a -> Int 
 unKey (KeyT i) = i
 
-data Entity a b =
+newtype Entity a b =
     Entity {
       id :: a
     , entity :: b

@@ -17,7 +17,7 @@ import CrudReuse.Routing (CrudRoute(..), crudUri)
 import CrudReuse.ReuseApi (class EntityBuilder, class EntityEditHTML, class EntityGET, class EntityREST, class EntityReadHTML, class EntityRoute, EditQuery(SetVal), EntityURI)
 
 
-data Thing =
+newtype Thing =
     Thing {
       name :: String
     , description :: String
