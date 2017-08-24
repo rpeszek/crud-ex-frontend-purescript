@@ -49,10 +49,6 @@ test =          HH.div_ $
                            ]
                       ]
 
-{-
-  H.component does not receive initial call from runUI, this will be called from parent eventually
-  https://github.com/slamdata/purescript-halogen/issues/444
--}
 ui :: forall eff model. 
       Show model =>
       EntityEditHTML model => 

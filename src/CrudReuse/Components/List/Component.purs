@@ -28,8 +28,6 @@ initialState :: forall model . State model
 initialState = { loading: false, errOrEntities: Left "Not Retrieved" }
 
 {-
-  H.component does not receive initial call from runUI, this will be called from parent eventually
-  https://github.com/slamdata/purescript-halogen/issues/444
 -}
 ui :: forall eff model. 
               Show model => 

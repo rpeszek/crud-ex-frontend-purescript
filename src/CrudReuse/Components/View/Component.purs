@@ -33,10 +33,6 @@ derive instance ordViewSlot :: Ord Slot
 initialState :: forall model . KeyT model -> State model
 initialState i = { loading: false, key: i, maybeModel: Nothing, maybeMsg: Just "Not Retrieved" }
 
-{-
-  H.component does not receive initial call from runUI, this will be called from parent eventually
-  https://github.com/slamdata/purescript-halogen/issues/444
--}
 ui :: forall eff model. 
           EntityReadHTML model => 
           EntityREST eff model =>   --this UI can delete model, hence REST not just GET
